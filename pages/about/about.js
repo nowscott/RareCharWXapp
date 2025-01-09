@@ -12,7 +12,7 @@ Page({
       topCategories: []
     },
     intro: {
-      title: "关于复制符",
+      title: "介绍",
       content: "复制符是一个帮助快速查找和使用特殊符号的小程序。我们收集了大量特殊符号，包括数学符号、货币符号等，并提供简单的检索功能。"
     },
     guide: {
@@ -48,8 +48,9 @@ Page({
       ]
     },
     footer: {
-      copyright: "© 2025 - NowScott",
-      icp: "ICP备xxxxxxxx号"
+      version: "当前版本:v0.0.9",
+      icp: "辽ICP备xxxxxxxx号",
+      copyright: "© 2025 - NowScott"
     }
   },
 

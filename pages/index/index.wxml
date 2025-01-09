@@ -37,20 +37,32 @@
     scroll-top="{{scrollTop}}"
     bindscroll="onSymbolScroll"
   >
-    <view class="symbols-list">
-      <block wx:if="{{showSymbols.length > 0}}">
-        <view class="symbol-item" 
-              wx:for="{{showSymbols}}" 
-              wx:key="id"
-              bindtap="showSymbolDetail" 
-              data-symbol="{{item}}">
-          <text class="symbol">{{item.symbol}}</text>
-          <text class="description">{{item.description}}</text>
-        </view>
+    <view class="symbols-list {{isLoading ? 'loading' : ''}}">
+      <block wx:if="{{!isLoading}}">
+        <block wx:if="{{showSymbols.length > 0}}">
+          <view class="symbol-item" 
+                wx:for="{{showSymbols}}" 
+                wx:key="id"
+                style="{{item.style}}"
+                bindtap="showSymbolDetail" 
+                data-symbol="{{item}}">
+            <text class="symbol">{{item.symbol}}</text>
+            <text class="description">{{item.description}}</text>
+          </view>
+        </block>
+        <block wx:else>
+          <view class="empty-tip">
+            <text>没有找到相关符号</text>
+          </view>
+        </block>
       </block>
       <block wx:else>
-        <view class="empty-tip">
-          <text>没有找到相关符号</text>
+        <view class="loading-container">
+          <view class="loading-dots">
+            <view class="dot"></view>
+            <view class="dot"></view>
+            <view class="dot"></view>
+          </view>
         </view>
       </block>
     </view>

@@ -60,7 +60,7 @@ page {
   display: inline-block;
   padding: 12rpx 24rpx;
   margin: 0 8rpx;
-  font-size: 24rpx;
+  font-size: 28rpx;
   color: #666;
   background: #ffffff;
   border-radius: 28rpx;
@@ -85,6 +85,11 @@ page {
   grid-template-columns: repeat(2, 1fr);
   gap: 16rpx;
   padding: 0 24rpx;
+  transition: opacity 0.2s;
+}
+
+.symbols-list.loading {
+  opacity: 0.6;
 }
 
 .symbol-item {
@@ -97,9 +102,8 @@ page {
   justify-content: space-between;
   box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
   min-height: 180rpx;
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.3s ease-out forwards;
   opacity: 0;
-  animation-fill-mode: forwards;
 }
 
 /* 定义淡入动画 */
@@ -114,16 +118,11 @@ page {
   }
 }
 
-/* 添加交错动画效果 */
-.symbol-item:nth-child(1) { animation-delay: 0s; }
-.symbol-item:nth-child(2) { animation-delay: 0.05s; }
-.symbol-item:nth-child(3) { animation-delay: 0.1s; }
-.symbol-item:nth-child(4) { animation-delay: 0.15s; }
-.symbol-item:nth-child(5) { animation-delay: 0.2s; }
-.symbol-item:nth-child(6) { animation-delay: 0.25s; }
-.symbol-item:nth-child(7) { animation-delay: 0.3s; }
-.symbol-item:nth-child(8) { animation-delay: 0.35s; }
-/* 可以根据需要添加更多延迟 */
+/* 基于网格位置的动画延迟 */
+.symbol-item:nth-child(2n-1),
+.symbol-item:nth-child(2n) {
+  animation-delay: calc(var(--row) * 0.05s);
+}
 
 .symbol {
   font-size: 72rpx;
@@ -265,4 +264,43 @@ page {
   align-items: center;
   padding: 20rpx;
   background-color: #fff;
+}
+
+/* 加载动画样式 */
+.loading-container {
+  grid-column: span 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40rpx 0;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 8rpx;
+}
+
+.dot {
+  width: 16rpx;
+  height: 16rpx;
+  background: #999;
+  border-radius: 50%;
+  animation: bounce 0.5s infinite alternate;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-10rpx);
+  }
 }

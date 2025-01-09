@@ -27,7 +27,7 @@
 /* 统计框样式 */
 .stats-box {
   margin-top: 16rpx;
-  padding: 16rpx;
+  padding: 32rpx 16rpx;
   background: #fff;
   border-radius: 16rpx;
   display: flex;
@@ -62,7 +62,7 @@
   margin-top: 16rpx;
   width: 100%;
   background: #fff;
-  padding: 16rpx;
+  padding: 32rpx;
   border-radius: 16rpx;
   box-sizing: border-box;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
@@ -79,6 +79,11 @@
   font-size: 28rpx;
   color: #333;
   line-height: 1.6;
+  text-align: justify;
+  text-justify: inter-ideograph;
+  word-break: break-all;
+  display: block;
+  width: 100%;
 }
 
 /* 使用说明列表样式 */
@@ -90,7 +95,7 @@
 
 .guide-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16rpx;
 }
 
@@ -109,6 +114,12 @@
 .guide-text {
   font-size: 28rpx;
   color: #333;
+  text-align: justify;
+  text-justify: inter-ideograph;
+  word-break: break-all;
+  flex: 1;
+  display: block;
+  padding-top: 6rpx;
 }
 
 /* 联系方式样式 */
@@ -134,17 +145,17 @@
 /* 底部样式 */
 .footer {
   text-align: center;
-  padding: 40rpx 0;
+  padding: 32rpx 0;
 }
 
-.copyright {
+.footer text {
   font-size: 24rpx;
   color: #999;
   display: block;
   margin-bottom: 8rpx;
 }
 
-.icp {
-  font-size: 24rpx;
-  color: #999;
+/* 如果最后一个元素不需要底部间距 */
+.footer text:last-child {
+  margin-bottom: 0;
 } 

@@ -16,7 +16,8 @@ Page({
     isScrolling: false,
     statusBarHeight: app.globalData.statusBarHeight,
     titleBarHeight: app.globalData.titleBarHeight,
-    navHeight: app.globalData.statusBarHeightNum + app.globalData.titleBarHeightNum + 'px'
+    navHeight: app.globalData.statusBarHeightNum + app.globalData.titleBarHeightNum + 'px',
+    isLoading: false
   },
 
   // 添加防抖定时器
@@ -70,12 +71,10 @@ Page({
   filterSymbols() {
     const { searchText, currentCategory, allSymbols } = this.data;
     
-    // 先清空当前显示的符号，触发动画重置
     this.setData({
-      showSymbols: []
+      isLoading: true
     });
 
-    // 延迟50ms后显示过滤后的符号，确保动画能重新触发
     setTimeout(() => {
       const filtered = SymbolUtils.searchSymbols(
         allSymbols,
@@ -83,8 +82,18 @@ Page({
         currentCategory
       );
       
+      // 计算每个项目的行号
+      const symbolsWithRow = filtered.map((symbol, index) => {
+        const row = Math.floor(index / 2); // 每行2个项目
+        return {
+          ...symbol,
+          style: `--row: ${row}`  // 添加CSS变量
+        };
+      });
+      
       this.setData({
-        showSymbols: filtered
+        showSymbols: symbolsWithRow,
+        isLoading: false
       });
     }, 50);
   },

@@ -49,7 +49,8 @@
 
   <!-- 备案信息 -->
   <view class="footer">
-    <text class="copyright">{{footer.copyright}}</text>
+    <text class="version">{{footer.version}}</text>
     <text class="icp">{{footer.icp}}</text>
+    <text class="copyright">{{footer.copyright}}</text>
   </view>
 </view> 
