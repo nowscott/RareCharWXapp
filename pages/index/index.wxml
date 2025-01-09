@@ -1,0 +1,65 @@
+<!--index.wxml-->
+<view class="container" style="padding-top: {{navHeight}}">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height: {{navHeight}}">
+    <view class="nav-title" style="margin-top: {{statusBarHeight}}">复制符</view>
+  </view>
+
+  <!-- 搜索区域 -->
+  <view class="search-box">
+    <input class="search-input" 
+           placeholder="🔍输入检索词..." 
+           bindinput="onSearch"
+           value="{{searchText}}"
+    />
+  </view>
+
+  <!-- 分类标签 -->
+  <scroll-view 
+    class="category-scroll" 
+    scroll-x 
+    enhanced="{{true}}"
+    show-scrollbar="{{false}}"
+  >
+    <view class="category-list">
+      <view class="category-item {{currentCategory === item ? 'active' : ''}}" 
+            wx:for="{{categories}}"
+            wx:key="*this"
+            bindtap="switchCategory" 
+            data-category="{{item}}">{{item}}</view>
+    </view>
+  </scroll-view>
+
+  <!-- 符号列表 -->
+  <scroll-view 
+    class="symbols-scroll" 
+    scroll-y 
+    scroll-top="{{scrollTop}}"
+    bindscroll="onSymbolScroll"
+  >
+    <view class="symbols-list">
+      <block wx:if="{{showSymbols.length > 0}}">
+        <view class="symbol-item" 
+              wx:for="{{showSymbols}}" 
+              wx:key="id"
+              bindtap="showSymbolDetail" 
+              data-symbol="{{item}}">
+          <text class="symbol">{{item.symbol}}</text>
+          <text class="description">{{item.description}}</text>
+        </view>
+      </block>
+      <block wx:else>
+        <view class="empty-tip">
+          <text>没有找到相关符号</text>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <!-- 使用符号详情组件 -->
+  <symbol-detail 
+    show="{{showDetail}}" 
+    symbol="{{currentSymbol}}"
+    bindclose="hideSymbolDetail"
+  />
+</view>

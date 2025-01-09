@@ -1,0 +1,268 @@
+/**index.wxss**/
+page {
+  background: #f6f6f6;
+}
+
+.container {
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.search-box {
+  padding: 0 24rpx;
+  margin-top: 16rpx;
+  background: #f6f6f6;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-input {
+  background: #ffffff;
+  height: 72rpx;
+  border-radius: 20rpx;
+  padding: 0 30rpx;
+  font-size: 28rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.category-scroll {
+  margin: 0;
+  margin-top: 16rpx;
+  white-space: nowrap;
+  background: #f6f6f6;
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* 隐藏横向滚动条 */
+.category-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* 兼容性处理 */
+.category-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.category-list {
+  display: inline-flex;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  width: auto;
+}
+
+.category-item {
+  display: inline-block;
+  padding: 12rpx 24rpx;
+  margin: 0 8rpx;
+  font-size: 24rpx;
+  color: #666;
+  background: #ffffff;
+  border-radius: 28rpx;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.category-item.active {
+  background: #000;
+  color: #fff;
+}
+
+.symbols-scroll {
+  flex: 1;
+  height: 0;
+  margin-top: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.symbols-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+  padding: 0 24rpx;
+}
+
+.symbol-item {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  min-height: 180rpx;
+  animation: fadeIn 0.3s ease-out;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+/* 定义淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 添加交错动画效果 */
+.symbol-item:nth-child(1) { animation-delay: 0s; }
+.symbol-item:nth-child(2) { animation-delay: 0.05s; }
+.symbol-item:nth-child(3) { animation-delay: 0.1s; }
+.symbol-item:nth-child(4) { animation-delay: 0.15s; }
+.symbol-item:nth-child(5) { animation-delay: 0.2s; }
+.symbol-item:nth-child(6) { animation-delay: 0.25s; }
+.symbol-item:nth-child(7) { animation-delay: 0.3s; }
+.symbol-item:nth-child(8) { animation-delay: 0.35s; }
+/* 可以根据需要添加更多延迟 */
+
+.symbol {
+  font-size: 72rpx;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.description {
+  font-size: 24rpx;
+  color: #666;
+  text-align: center;
+  background: #f6f6f6;
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+  width: auto;
+}
+
+.empty-tip {
+  grid-column: span 2;
+  text-align: center;
+  color: #999;
+  padding: 60rpx 0;
+}
+
+.symbol-detail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+}
+
+.symbol-detail.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.detail-card {
+  width: 80%;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 40rpx;
+  transform: translateY(50rpx);
+  transition: all 0.3s;
+}
+
+.symbol-detail.show .detail-card {
+  transform: translateY(0);
+}
+
+.detail-symbol {
+  font-size: 80rpx;
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.detail-category {
+  font-size: 24rpx;
+  color: #666;
+  text-align: center;
+  background: #f6f6f6;
+  padding: 4rpx 20rpx;
+  border-radius: 20rpx;
+  display: inline-block;
+  margin: 0 auto 30rpx;
+}
+
+.detail-desc {
+  font-size: 32rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+  line-height: 1.5;
+}
+
+.detail-notes {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 40rpx;
+  line-height: 1.5;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-btn {
+  flex: 1;
+  font-size: 28rpx;
+  padding: 20rpx 0;
+  border-radius: 10rpx;
+  border: none;
+}
+
+.copy-btn {
+  background: #000;
+  color: #fff;
+}
+
+.copy-with-desc-btn {
+  background: #f6f6f6;
+  color: #333;
+}
+
+.custom-nav {
+  width: 100%;
+  background: #fff;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99;
+}
+
+.nav-title {
+  font-size: 36rpx;
+  font-weight: 500;
+  color: #000;
+  height: 44px;
+  line-height: 44px;
+  margin-left: 24rpx;
+}
+
+.search-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx;
+  background-color: #fff;
+}

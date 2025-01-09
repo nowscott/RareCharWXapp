@@ -1,0 +1,55 @@
+<view class="container" style="padding-top: {{navHeight}}">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="height: {{navHeight}}">
+    <view class="nav-title" style="margin-top: {{statusBarHeight}}">关于</view>
+  </view>
+  <!-- 统计框 -->
+  <view class="stats-box">
+    <view class="stats-item">
+      <text class="stats-num">{{stats.total}}</text>
+      <text class="stats-label">全部符号</text>
+    </view>
+    <view class="stats-item" wx:for="{{stats.topCategories}}" wx:key="category">
+      <text class="stats-num">{{item.count}}</text>
+      <text class="stats-label">{{item.category}}</text>
+    </view>
+  </view>
+
+  <!-- 介绍 -->
+  <view class="section">
+    <text class="section-title">{{intro.title}}</text>
+    <text class="section-content">{{intro.content}}</text>
+  </view>
+
+  <!-- 使用说明 -->
+  <view class="section">
+    <text class="section-title">{{guide.title}}</text>
+    <view class="guide-list">
+      <view class="guide-item" wx:for="{{guide.steps}}" wx:key="*this">
+        <text class="guide-num">{{index + 1}}</text>
+        <text class="guide-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 联系方式 -->
+  <view class="section">
+    <text class="section-title">{{contact.title}}</text>
+    <view class="contact-list">
+      <view class="contact-item" 
+            wx:for="{{contact.items}}" 
+            wx:key="type"
+            bindtap="copyContact" 
+            data-type="{{item.type}}">
+        <image class="contact-icon" src="{{item.icon}}" />
+        <text>{{item.text}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 备案信息 -->
+  <view class="footer">
+    <text class="copyright">{{footer.copyright}}</text>
+    <text class="icp">{{footer.icp}}</text>
+  </view>
+</view> 

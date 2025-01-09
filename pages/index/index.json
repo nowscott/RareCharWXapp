@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "symbol-detail": "/components/detail/detail"
+  }
+}

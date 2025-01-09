@@ -1,0 +1,118 @@
+.symbol-detail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+}
+
+.symbol-detail.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.detail-card {
+  position: relative;
+  width: 80%;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 40rpx;
+  transform: translateY(50rpx);
+  transition: all 0.3s;
+}
+
+.symbol-detail.show .detail-card {
+  transform: translateY(0);
+}
+
+.detail-symbol {
+  font-size: 100rpx;
+}
+
+.detail-category {
+  font-size: 24rpx;
+  color: #666;
+  text-align: center;
+  background: #f6f6f6;
+  padding: 4rpx 20rpx;
+  border-radius: 20rpx;
+  display: inline-block;
+  margin: 0 auto 16rpx;
+}
+
+.detail-desc {
+  font-size: 32rpx;
+  color: #333;
+  margin-bottom: 16rpx;
+  line-height: 1.5;
+}
+
+.detail-notes {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+  line-height: 1.5;
+}
+
+.detail-actions {
+  display: none;
+}
+
+.action-btn {
+  width: 60%;
+  font-size: 28rpx;
+  padding: 20rpx 0;
+  border-radius: 10rpx;
+  border: none;
+}
+
+.copy-btn {
+  background: #000;
+  color: #fff;
+}
+
+.copy-with-desc-btn {
+  background: #f6f6f6;
+  color: #333;
+}
+
+.detail-at {
+  display: none;
+}
+
+.copy-icon {
+  position: absolute;
+  top: 20rpx;
+  right: 20rpx;
+  width: 40rpx;
+  height: 40rpx;
+  opacity: 0.6;
+}
+
+.copy-icon:active {
+  opacity: 1;
+}
+
+.unicode-code {
+  font-size: 20rpx;
+  color: #999;
+  text-align: center;
+  margin: 8rpx 0 16rpx;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.unicode-point {
+  background: #f6f6f6;
+  padding: 4rpx 8rpx;
+  border-radius: 6rpx;
+} 
