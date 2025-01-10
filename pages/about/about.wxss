@@ -1,5 +1,10 @@
 .page {
   background: var(--color-bg-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 
 .custom-nav {
@@ -7,7 +12,9 @@
   background: var(--color-bg-secondary);
   display: flex;
   flex-direction: column;
-  position: sticky;
+  flex-shrink: 0;
+  z-index: 100;
+  position: fixed;
   top: 0;
   left: 0;
 }
@@ -24,9 +31,17 @@
 }
 
 .container {
-  min-height: 100vh;
+  flex: 1;
   background: var(--color-bg-primary);
-  padding: 0 24rpx;
+  padding: 8rpx 24rpx;
+  overflow-y: auto;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 隐藏滚动条 */
+.container::-webkit-scrollbar {
+  display: none;
 }
 
 /* 统计框样式 */
@@ -67,7 +82,7 @@
   margin-top: 16rpx;
   width: 100%;
   background: var(--color-bg-secondary);
-  padding: 32rpx;
+  padding: 16rpx 32rpx;
   border-radius: 16rpx;
   box-sizing: border-box;
   box-shadow: var(--shadow);
@@ -76,7 +91,7 @@
 .section-title {
   font-size: 32rpx;
   font-weight: bold;
-  margin-bottom: 24rpx;
+  margin-bottom: 16rpx;
   display: block;
 }
 
@@ -95,7 +110,7 @@
 .guide-list {
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  gap: 8rpx;
 }
 
 .guide-item {
@@ -110,7 +125,7 @@
   word-break: break-all;
   flex: 1;
   display: block;
-  line-height: 1.4;
+  line-height: 1.2;
 }
 
 /* 联系方式样式 */
@@ -124,19 +139,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12rpx;
+  gap: 8rpx;
+}
+
+.contact-text {
+  font-size: 20rpx;
+  color: var(--color-text-tertiary);
 }
 
 .contact-icon {
-  width: 80rpx;
-  height: 80rpx;
+  width: 64rpx;
+  height: 64rpx;
   border-radius: 16rpx;
 }
 
 /* 底部样式 */
 .footer {
   text-align: center;
-  padding: 32rpx 0;
+  padding: 16rpx 0;
 }
 
 .footer-text {
