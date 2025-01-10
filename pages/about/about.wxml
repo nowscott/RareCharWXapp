@@ -26,7 +26,6 @@
     <text class="section-title">{{guide.title}}</text>
     <view class="guide-list">
       <view class="guide-item" wx:for="{{guide.steps}}" wx:key="*this">
-        <text class="guide-num">{{index + 1}}</text>
         <text class="guide-text">{{item}}</text>
       </view>
     </view>
