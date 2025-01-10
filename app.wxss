@@ -20,6 +20,7 @@ page {
   --color-border: rgba(0, 0, 0, 0.05);
   --color-overlay: rgba(0, 0, 0, 0.8);
   --shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  background: var(--color-bg-primary);
 }
 
 /* 暗色主题 */

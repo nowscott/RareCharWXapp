@@ -1,14 +1,19 @@
 /**index.wxss**/
-page {
+.page {
   background: var(--color-bg-primary);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .container {
   padding: 0;
-  height: 100vh;
+  flex: 1;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .search-box {
@@ -17,8 +22,6 @@ page {
   background: var(--color-bg-primary);
   width: 100%;
   box-sizing: border-box;
-  position: relative;
-  z-index: 1;
 }
 
 .search-input {
@@ -82,6 +85,8 @@ page {
   height: 0;
   margin-top: 16rpx;
   margin-bottom: 16rpx;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .symbols-list {
@@ -160,13 +165,14 @@ page {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--color-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s;
+  z-index: 999;
 }
 
 .symbol-detail.show {
@@ -245,21 +251,21 @@ page {
   width: 100%;
   background: var(--color-bg-secondary);
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
-  position: fixed;
+  flex-direction: column;
+  position: sticky;
   top: 0;
   left: 0;
-  z-index: 2;
 }
 
 .nav-title {
   font-size: 36rpx;
   font-weight: 500;
   color: var(--color-text-primary);
-  height: 44px;
-  line-height: 44px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
   margin-left: 24rpx;
+  margin-bottom: 8rpx;
 }
 
 .search-container {

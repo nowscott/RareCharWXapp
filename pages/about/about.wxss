@@ -1,21 +1,26 @@
+.page {
+  background: var(--color-bg-primary);
+}
+
 .custom-nav {
   width: 100%;
   background: var(--color-bg-secondary);
   display: flex;
-  align-items: flex-end;
-  position: fixed;
+  flex-direction: column;
+  position: sticky;
   top: 0;
   left: 0;
-  z-index: 99;
 }
 
 .nav-title {
   font-size: 36rpx;
   font-weight: 500;
   color: var(--color-text-primary);
-  height: 44px;
-  line-height: 44px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
   margin-left: 24rpx;
+  margin-bottom: 8rpx;
 }
 
 .container {

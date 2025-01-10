@@ -5,8 +5,7 @@ const SymbolUtils = require('../../utils/utils.js');
 Page({
   data: {
     statusBarHeight: app.globalData.statusBarHeight,
-    titleBarHeight: app.globalData.titleBarHeight,
-    navHeight: app.globalData.statusBarHeightNum + app.globalData.titleBarHeightNum + 'px',
+    titleHeight: app.globalData.titleHeight,
     stats: {
       total: 0,
       topCategories: []

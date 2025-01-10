@@ -16,8 +16,7 @@ Page({
     scrollTop: 0,
     isScrolling: false,
     statusBarHeight: app.globalData.statusBarHeight,
-    titleBarHeight: app.globalData.titleBarHeight,
-    navHeight: app.globalData.statusBarHeightNum + app.globalData.titleBarHeightNum + 'px',
+    titleHeight: app.globalData.titleHeight,
     isLoading: false
   },
 
