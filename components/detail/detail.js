@@ -1,7 +1,9 @@
 Component({
   data: {
     isCopying: false,
-    unicodePoints: []  // 存储所有码点
+    unicodePoints: [],  // 存储所有码点
+    promotionSlogan: '探索更多符号的奥秘',  // 添加推广标语
+    statusBarHeight: 0  // 存储状态栏高度
   },
 
   properties: {
@@ -50,12 +52,10 @@ Component({
             title: '已复制',
             icon: 'success'
           });
-          
           // 1秒后恢复图标状态
           setTimeout(() => {
             this.setData({ isCopying: false });
           }, 1000);
-          
           this.triggerEvent('close');
         }
       });

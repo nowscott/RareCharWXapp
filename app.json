@@ -14,8 +14,8 @@
   "tabBar": {
     "color": "#999999",
     "selectedColor": "#000000",
-    "backgroundColor": "#ffffff",
-    "borderStyle": "black",
+    "backgroundColor": "@tabBarBg",
+    "borderStyle": "@tabBarBorderStyle",
     "list": [
       {
         "pagePath": "pages/index/index",
@@ -30,5 +30,7 @@
     ]
   },
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "darkmode": true,
+  "themeLocation": "theme.json"
 }

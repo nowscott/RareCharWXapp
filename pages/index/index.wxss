@@ -1,6 +1,6 @@
 /**index.wxss**/
 page {
-  background: #f6f6f6;
+  background: var(--color-bg-primary);
 }
 
 .container {
@@ -14,13 +14,16 @@ page {
 .search-box {
   padding: 0 24rpx;
   margin-top: 16rpx;
-  background: #f6f6f6;
+  background: var(--color-bg-primary);
   width: 100%;
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 .search-input {
-  background: #ffffff;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
   height: 72rpx;
   border-radius: 20rpx;
   padding: 0 30rpx;
@@ -33,20 +36,20 @@ page {
   margin: 0;
   margin-top: 16rpx;
   white-space: nowrap;
-  background: #f6f6f6;
+  background: var(--color-bg-primary);
   width: 100%;
   overflow-x: auto;
-}
-
-/* 隐藏横向滚动条 */
-.category-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-/* 兼容性处理 */
-.category-scroll {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
+  -webkit-overflow-scrolling: touch; /* iOS 滚动更流畅 */
+}
+
+/* Webkit 浏览器（Chrome、Safari等）隐藏滚动条 */
+.category-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  background: transparent;
 }
 
 .category-list {
@@ -54,6 +57,7 @@ page {
   padding: 0 24rpx;
   box-sizing: border-box;
   width: auto;
+  overflow: hidden; /* 防止可能的溢出 */
 }
 
 .category-item {
@@ -61,16 +65,16 @@ page {
   padding: 12rpx 24rpx;
   margin: 0 8rpx;
   font-size: 28rpx;
-  color: #666;
-  background: #ffffff;
-  border-radius: 28rpx;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-secondary);
+  border-radius: 20rpx;
   transition: all 0.3s;
   white-space: nowrap;
 }
 
 .category-item.active {
-  background: #000;
-  color: #fff;
+  background: var(--color-text-primary);
+  color: var(--color-bg-secondary);
 }
 
 .symbols-scroll {
@@ -93,14 +97,14 @@ page {
 }
 
 .symbol-item {
-  background: #ffffff;
+  background: var(--color-bg-secondary);
   border-radius: 16rpx;
   padding: 16rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow);
   min-height: 180rpx;
   animation: fadeIn 0.3s ease-out forwards;
   opacity: 0;
@@ -135,9 +139,9 @@ page {
 
 .description {
   font-size: 24rpx;
-  color: #666;
+  color: var(--color-text-tertiary);
   text-align: center;
-  background: #f6f6f6;
+  background: var(--color-bg-primary);
   padding: 8rpx 16rpx;
   border-radius: 12rpx;
   width: auto;
@@ -146,7 +150,7 @@ page {
 .empty-tip {
   grid-column: span 2;
   text-align: center;
-  color: #999;
+  color: var(--color-text-quaternary);
   padding: 60rpx 0;
 }
 
@@ -239,20 +243,20 @@ page {
 
 .custom-nav {
   width: 100%;
-  background: #fff;
+  background: var(--color-bg-secondary);
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 99;
+  z-index: 2;
 }
 
 .nav-title {
   font-size: 36rpx;
   font-weight: 500;
-  color: #000;
+  color: var(--color-text-primary);
   height: 44px;
   line-height: 44px;
   margin-left: 24rpx;
@@ -263,7 +267,7 @@ page {
   justify-content: space-between;
   align-items: center;
   padding: 20rpx;
-  background-color: #fff;
+  background-color: var(--color-bg-secondary);
 }
 
 /* 加载动画样式 */
@@ -283,7 +287,7 @@ page {
 .dot {
   width: 16rpx;
   height: 16rpx;
-  background: #999;
+  background: var(--color-text-quaternary);
   border-radius: 50%;
   animation: bounce 0.5s infinite alternate;
 }

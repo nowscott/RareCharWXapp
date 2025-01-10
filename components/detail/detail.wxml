@@ -1,13 +1,27 @@
 <view class="symbol-detail {{show ? 'show' : ''}}" bindtap="onClose">
   <view class="detail-card" catchtap="stopPropagation">
-    <view class="detail-symbol">{{symbol.symbol}}</view>
-    <image class="copy-icon" src="/images/detail/{{isCopying ? 'copy_active.svg' : 'copy.svg'}}" bindtap="onCopySymbol"></image>
-    <view class="detail-category">{{symbol.category}}</view>
-    <view class="detail-desc">{{symbol.description}}</view>
-    <view class="detail-notes">{{symbol.notes}}</view>
-    <view class="unicode-code">
-      <text style="font-size: 24rpx;font-weight: bold;">Unicode: </text>
-      <text wx:for="{{unicodePoints}}" wx:key="*this" class="unicode-point">U+{{item}}</text>
+    <view class="safe-area-top" style="height: {{statusBarHeight}}px"></view>
+    
+    <view class="detail-content">
+      <view class="detail-symbol">{{symbol.symbol}}</view>
+      <image class="copy-icon" src="/images/detail/{{isCopying ? 'copy_active.svg' : 'copy.svg'}}" bindtap="onCopySymbol"></image>
+      <view class="detail-categories">
+        <view class="detail-category" wx:for="{{symbol.category}}" wx:key="*this">
+          {{item}}
+        </view>
+      </view>
+      <view class="detail-desc">{{symbol.description}}</view>
+      <view class="detail-notes">{{symbol.notes}}</view>
+      <view class="unicode-code">
+        <text style="font-size: 24rpx;font-weight: bold;">Unicode: </text>
+        <text wx:for="{{unicodePoints}}" wx:key="*this" class="unicode-point">U+{{item}}</text>
+      </view>
+      <view class="promotion-area">
+        <view class="promotion-slogan">{{promotionSlogan}}</view>
+        <image class="qr-code" src="../../images/detail/rarechar.png" mode="aspectFit"></image>
+      </view>
     </view>
+
+    <view class="safe-area-bottom" style="height: {{statusBarHeight}}px"></view>
   </view>
-</view> 
+</view>

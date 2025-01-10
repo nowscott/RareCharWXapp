@@ -10,13 +10,11 @@ App({
     const pageTopy = statusBarHeight + titleBarHeight;
 
     this.globalData = {
-      version: '1.0.0',
       statusBarHeight: statusBarHeight + 'px',
       titleBarHeight: titleBarHeight + 'px',
       tabBarHeight: tabBarHeight + 'px',
       pageHeight: pageHeight + 'px',
       pageTopy: pageTopy + 'px',
-      // 保存原始数值，方便计算
       statusBarHeightNum: statusBarHeight,
       titleBarHeightNum: titleBarHeight
     };

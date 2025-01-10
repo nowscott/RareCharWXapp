@@ -23,7 +23,7 @@
   >
     <view class="category-list">
       <view class="category-item {{currentCategory === item ? 'active' : ''}}" 
-            wx:for="{{categories}}"
+            wx:for="{{showCategories}}"
             wx:key="*this"
             bindtap="switchCategory" 
             data-category="{{item}}">{{item}}</view>

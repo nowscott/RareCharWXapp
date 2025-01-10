@@ -13,6 +13,7 @@
     "enhance": true,
     "showShadowRootInWxmlPanel": true,
     "packNpmRelationList": [],
+    "compileHotReLoad": true,
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
