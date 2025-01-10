@@ -5,12 +5,12 @@
     <view class="detail-content">
       <view class="detail-symbol">{{symbol.symbol}}</view>
       <image class="copy-icon" src="/images/detail/{{isCopying ? 'copy_active.svg' : 'copy.svg'}}" bindtap="onCopySymbol"></image>
+      <view class="detail-desc">{{symbol.description}}</view>
       <view class="detail-categories">
         <view class="detail-category" wx:for="{{symbol.category}}" wx:key="*this">
           {{item}}
         </view>
       </view>
-      <view class="detail-desc">{{symbol.description}}</view>
       <view class="detail-notes">{{symbol.notes}}</view>
       <view class="unicode-code">
         <text style="font-size: 24rpx;font-weight: bold;">Unicode: </text>
