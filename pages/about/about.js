@@ -1,30 +1,50 @@
 const app = getApp();
-const symbolsData = require('../../data/data.js');
-const SymbolUtils = require('../../utils/utils.js');
+const CacheManager = require('../../utils/cache.js');
+const UpdateManager = require('../../utils/update.js');
+const StatsManager = require('../../utils/stats.js');
 
 Page({
   data: {
+    texts: {
+      intro: {
+        title: "介绍",
+        content: "👏复制符是一个帮助快速查找和使用特殊符号的小程序。收集了大量特殊符号，包括数学符号、货币符号等，并提供简单的检索功能。\n⚠️注：部分内容是 ai 生成，勘误请联系下方邮箱。"
+      },
+      guide: {
+        title: "说明",
+        steps: [
+          "🔍 在首页搜索框输入关键词\\检索词（支持部分拼音检索）",
+          "👆 点击符号查看详情页",
+          "📋 点击右上角复制按钮即可复制符号",
+          "🔄 点击更新数据按钮可更新符号库（每小时可更新一次）",
+          "💡 如果遇到什么问题可以点击下方邮箱联系反馈"
+        ]
+      },
+      footer: {
+        icp: "辽ICP备xxxxxxxx号",
+        copyright: "© 2025 - NowScott"
+      }
+    },
+
+    // 系统配置
+    DEFAULT_VERSION: '0.0.1',
     statusBarHeight: app.globalData.statusBarHeight,
     titleHeight: app.globalData.titleHeight,
+
+    // 数据状态
     stats: {
       total: 0,
-      topCategories: []
+      topCategories: [],
+      updateTime: '',
+      isUpdating: false,
+      version: '',
+      hasUpdate: false,
+      canUpdate: true
     },
-    intro: {
-      title: "介绍",
-      content: "👏复制符是一个帮助快速查找和使用特殊符号的小程序。收集了大量特殊符号，包括数学符号、货币符号等，并提供简单的检索功能。\n⚠️注：部分内容是 ai 生成，勘误请联系下方邮箱。"
-    },
-    guide: {
-      title: "使用说明",
-      steps: [
-        "🔍 在首页搜索框输入关键词\\检索词（支持部分拼音检索）",
-        "👆 点击符号查看详情页",
-        "📋 点击右上角复制按钮即可复制符号",
-        "💡 如果遇到什么问题可以点击下方邮箱联系反馈"
-      ]
-    },
+
+    // 联系方式配置
     contact: {
-      title: "联系方式",
+      title: "联系",
       items: [
         {
           type: "xiaohongshu",
@@ -45,18 +65,50 @@ Page({
           value: "nowscott@qq.com"
         }
       ]
-    },
-    footer: {
-      version: "当前版本:v0.3.0",
-      icp: "辽ICP备xxxxxxxx号",
-      copyright: "© 2025 - NowScott"
     }
   },
 
   onLoad() {
-    // 获取符号统计数据
-    const stats = SymbolUtils.countSymbols(symbolsData.symbols);
-    this.setData({ stats });
+    this.fetchStatsData();
+    const timestamp = wx.getStorageSync('symbols_timestamp');
+    const version = CacheManager.getCurrentVersion();
+    if (timestamp) {
+      this.setData({
+        'stats.updateTime': UpdateManager.formatTime(timestamp),
+        'stats.version': version || this.data.DEFAULT_VERSION,
+        'stats.canUpdate': UpdateManager.checkCanUpdate(timestamp)
+      });
+    }
+    this.checkUpdate();
+  },
+
+  updateData() {
+    UpdateManager.updateData({
+      onStart: () => {
+        this.setData({ 'stats.isUpdating': true });
+      },
+      onSuccess: () => {
+        this.fetchStatsData();
+        const now = Date.now();
+        this.setData({
+          'stats.updateTime': UpdateManager.formatTime(now)
+        });
+      },
+      onComplete: () => {
+        this.setData({ 'stats.isUpdating': false });
+      }
+    });
+  },
+
+  fetchStatsData() {
+    StatsManager.fetchStatsData({
+      onSuccess: (stats) => {
+        this.setData({
+          'stats.total': stats.total,
+          'stats.topCategories': stats.topCategories
+        });
+      }
+    });
   },
   
   copyContact(e) {
@@ -85,5 +137,22 @@ Page({
     return {
       title: '复制符 - 特殊符号检索工具'
     }
-  }
+  },
+
+  async checkUpdate() {
+    UpdateManager.checkUpdate({
+      onNewVersion: (newVersion) => {
+        this.setData({ 'stats.hasUpdate': true });
+        wx.showModal({
+          title: '发现新版本',
+          content: `发现新版本(${newVersion})，是否更新？`,
+          success: (res) => {
+            if (res.confirm) {
+              this.updateData();
+            }
+          }
+        });
+      }
+    });
+  },
 }); 

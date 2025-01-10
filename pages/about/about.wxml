@@ -1,9 +1,24 @@
 <view class="page">
-<!-- 自定义导航栏 -->
-<view class="custom-nav">
-      <view class="nav-title" style="margin-top: {{statusBarHeight}};height:{{titleHeight}}">关于</view>
-</view>
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav">
+    <view class="nav-title" style="margin-top: {{statusBarHeight}};height:{{titleHeight}}">关于</view>
+  </view>
   <view class="container">
+    <!-- 介绍 -->
+    <view class="section">
+      <text class="section-title">{{texts.intro.title}}</text>
+      <text class="section-content">{{texts.intro.content}}</text>
+    </view>
+
+    <!-- 使用说明 -->
+    <view class="section">
+      <text class="section-title">{{texts.guide.title}}</text>
+      <view class="guide-list">
+        <view class="guide-item" wx:for="{{texts.guide.steps}}" wx:key="*this">
+          <text class="guide-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
     <!-- 统计框 -->
     <view class="stats-box">
       <view class="stats-item">
@@ -15,43 +30,38 @@
         <text class="stats-label">{{item.category}}</text>
       </view>
     </view>
-
-    <!-- 介绍 -->
-    <view class="section">
-      <text class="section-title">{{intro.title}}</text>
-      <text class="section-content">{{intro.content}}</text>
-    </view>
-
-    <!-- 使用说明 -->
-    <view class="section">
-      <text class="section-title">{{guide.title}}</text>
-      <view class="guide-list">
-        <view class="guide-item" wx:for="{{guide.steps}}" wx:key="*this">
-          <text class="guide-text">{{item}}</text>
+    <!-- 数据更新信息 -->
+    <view class="section update-section">
+      <view class="update-info">
+        <view class="update-details">
+          <view class="version-line">
+            <text class="label">当前数据版本：</text>
+            <text class="value">v{{stats.version || '暂无版本信息'}}</text>
+          </view>
+          <view class="time-line">
+            <text class="label">数据更新时间：</text>
+            <text class="value">{{stats.updateTime || '暂无更新时间'}}</text>
+          </view>
         </view>
+        <button class="update-btn {{stats.isUpdating ? 'updating' : ''}} {{stats.hasUpdate ? 'has-update' : ''}}" bindtap="updateData" disabled="{{stats.isUpdating || !stats.canUpdate}}">
+          {{stats.isUpdating ? '更新中' : '更新数据'}}
+        </button>
       </view>
     </view>
-
     <!-- 联系方式 -->
     <view class="section">
       <text class="section-title">{{contact.title}}</text>
       <view class="contact-list">
-        <view class="contact-item" 
-              wx:for="{{contact.items}}" 
-              wx:key="type"
-              bindtap="copyContact" 
-              data-type="{{item.type}}">
+        <view class="contact-item" wx:for="{{contact.items}}" wx:key="type" bindtap="copyContact" data-type="{{item.type}}">
           <image class="contact-icon" src="{{item.icon}}" />
           <text>{{item.text}}</text>
         </view>
       </view>
     </view>
-
     <!-- 备案信息 -->
     <view class="footer">
-      <text class="version">{{footer.version}}</text>
-      <text class="icp">{{footer.icp}}</text>
-      <text class="copyright">{{footer.copyright}}</text>
+      <text class="footer-text icp">{{texts.footer.icp}}</text>
+      <text class="footer-text copyright">{{texts.footer.copyright}}</text>
     </view>
   </view>
-</view> 
+</view>

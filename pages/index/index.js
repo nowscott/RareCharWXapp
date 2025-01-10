@@ -1,7 +1,7 @@
 // index.js
 const app = getApp();
-const symbolsData = require('../../data/data.js');
 const SymbolUtils = require('../../utils/utils.js');
+const CacheManager = require('../../utils/cache.js');
 
 Page({
   data: {
@@ -17,40 +17,71 @@ Page({
     isScrolling: false,
     statusBarHeight: app.globalData.statusBarHeight,
     titleHeight: app.globalData.titleHeight,
-    isLoading: false
+    isLoading: true
+  },
+
+  onLoad() {
+    // 从API获取数据
+    this.fetchSymbolsData();
+  },
+
+  // 新增获取数据的方法
+  fetchSymbolsData() {
+    // 先尝试从缓存获取数据
+    const cachedData = CacheManager.getData();
+    if (cachedData) {
+      this.processData(cachedData);
+      return;
+    }
+
+    wx.request({
+      url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json',
+      success: (res) => {
+        if(res.data && res.data.symbols) {
+          // 保存到缓存
+          CacheManager.saveData(res.data);
+          // 处理数据
+          this.processData(res.data);
+        }
+      },
+      fail: (err) => {
+        console.error('获取数据失败:', err);
+        this.setData({
+          isLoading: false
+        });
+        wx.showToast({
+          title: '数据加载失败',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  // 处理数据的方法
+  processData(data) {
+    const symbols = data.symbols;
+    
+    // 处理分类
+    const categorySet = new Set();
+    symbols.forEach(symbol => {
+      if(Array.isArray(symbol.category)) {
+        symbol.category.forEach(cat => categorySet.add(cat));
+      }
+    });
+    
+    const categories = ['全部', ...Array.from(categorySet)];
+    
+    this.setData({
+      allSymbols: symbols,
+      showSymbols: symbols,
+      categories: categories,
+      showCategories: categories,
+      isLoading: false
+    });
   },
 
   // 添加防抖定时器
   searchTimer: null,
-
-  onLoad(options) {
-    // 使用工具类的去重方法
-    const uniqueSymbols = SymbolUtils.removeDuplicates(symbolsData.symbols);
-    const categories = ['全部', ...SymbolUtils.getCategories(uniqueSymbols)];
-    
-    this.setData({
-      allSymbols: uniqueSymbols,
-      categories,
-      showCategories: categories,
-      showSymbols: SymbolUtils.shuffle([...uniqueSymbols])
-    });
-
-    // 处理分享进入的情况
-    if (options.symbol) {
-      const decodedSymbol = decodeURIComponent(options.symbol);
-      const symbol = uniqueSymbols.find(s => s.symbol === decodedSymbol);
-      if (symbol) {
-        this.setData({
-          showDetail: true,
-          currentSymbol: symbol
-        });
-        // 设置导航栏标题为符号描述
-        wx.setNavigationBarTitle({
-          title: symbol.description
-        });
-      }
-    }
-  },
 
   // 搜索处理
   onSearch(e) {

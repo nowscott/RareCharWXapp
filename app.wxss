@@ -9,6 +9,10 @@
   box-sizing: border-box;
 } 
 
+button:not([size=mini]) {
+  width: 100rpx;
+}
+
 /* 亮色主题 */
 page {
   --color-bg-primary: #f6f6f6;
