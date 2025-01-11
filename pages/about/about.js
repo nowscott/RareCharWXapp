@@ -164,14 +164,17 @@ Page({
   
   onShareAppMessage() {
     return {
-      title: '复制符 - 关于我们',
-      path: '/pages/index/index'
+      title: '复制符 - 探索特殊符号的宝库',
+      path: '/pages/index/index',
+      imageUrl: '/images/share.png'
     }
   },
   
   onShareTimeline() {
     return {
-      title: '复制符 - 特殊符号检索工具'
+      title: '复制符 - 特殊符号检索工具',
+      query: '',
+      imageUrl: '/images/share.png'
     }
   },
 

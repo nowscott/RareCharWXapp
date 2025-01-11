@@ -9,6 +9,7 @@ App({
     const titleTop = menuButtonInfo.top;
     const titleHeight = menuButtonInfo.height;
     const titleSize = menuButtonInfo.height - 4;
+
     // 先初始化 globalData
     this.globalData = {
       statusBarHeight: titleTop + 'px',
@@ -17,14 +18,42 @@ App({
       fontLoaded: false,
       eventBus: EventBus
     };
+
     // 初始化字体
     StorageManager.initFont({
       onSuccess: () => {
         this.globalData.fontLoaded = true;
       }
     });
+
+    // 检查数据更新
+    this.checkDataUpdate();
+    
     // 检查小程序更新
     this.checkForUpdate();
+  },
+
+  // 检查数据更新
+  checkDataUpdate() {
+    const timestamp = wx.getStorageSync('symbols_timestamp');
+    const now = Date.now();
+    
+    // 如果数据超过1小时，自动更新
+    if (!timestamp || (now - timestamp >= StorageManager.CACHE_TIME.CHECK_UPDATE)) {
+      wx.request({
+        url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json',
+        success: (res) => {
+          if (res.data && res.data.symbols) {
+            StorageManager.saveData(res.data);
+            this.globalData.eventBus.emit('dataUpdated');
+            console.log('数据已自动更新');
+          }
+        },
+        fail: (err) => {
+          console.error('自动更新数据失败:', err);
+        }
+      });
+    }
   },
 
   // 检查小程序更新
