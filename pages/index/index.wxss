@@ -60,7 +60,7 @@
   padding: 0 24rpx;
   box-sizing: border-box;
   width: auto;
-  overflow: hidden; /* 防止可能的溢出 */
+  overflow: hidden;
 }
 
 .category-item {
@@ -73,11 +73,15 @@
   border-radius: 20rpx;
   transition: all 0.3s;
   white-space: nowrap;
+  box-shadow: var(--shadow);
 }
 
 .category-item.active {
   background: var(--color-text-primary);
   color: var(--color-bg-secondary);
+  opacity: 0.9;
+  transform: translateY(-2rpx);
+  box-shadow: var(--shadow-active);
 }
 
 .symbols-scroll {
@@ -113,6 +117,7 @@
   min-height: 180rpx;
   animation: fadeIn 0.3s ease-out forwards;
   opacity: 0;
+  will-change: transform, opacity;
 }
 
 /* 定义淡入动画 */
@@ -142,7 +147,7 @@
   flex: 1;
 }
 
-.description {
+.name {
   font-size: 24rpx;
   color: var(--color-text-tertiary);
   text-align: center;

@@ -52,10 +52,10 @@
   width: fit-content;
 }
 
-.detail-desc {
+.detail-name {
   font-size: 32rpx;
-  color: var(--color-text-primary);
-  margin-bottom: 16rpx;
+  color: #333;
+  margin-bottom: 20rpx;
   line-height: 1.5;
 }
 
@@ -88,7 +88,7 @@
   color: #fff;
 }
 
-.copy-with-desc-btn {
+.copy-with-name-btn {
   background: #f6f6f6;
   color: #333;
 }

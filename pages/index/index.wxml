@@ -37,19 +37,18 @@
       class="symbols-scroll" 
       scroll-y 
       scroll-top="{{scrollTop}}"
-      bindscroll="onSymbolScroll"
     >
-      <view class="symbols-list {{isLoading ? 'loading' : ''}}">
+      <view class="symbols-list">
         <block wx:if="{{!isLoading}}">
           <block wx:if="{{showSymbols.length > 0}}">
             <view class="symbol-item" 
                   wx:for="{{showSymbols}}" 
-                  wx:key="id"
-                  style="{{item.style}}"
+                  wx:key="_key"
+                  class="symbol-item {{currentCategory ? 'animate' : ''}}"
                   bindtap="showSymbolDetail" 
                   data-symbol="{{item}}">
               <text class="symbol">{{item.symbol}}</text>
-              <text class="description">{{item.description}}</text>
+              <text class="name">{{item.name}}</text>
             </view>
           </block>
           <block wx:else>

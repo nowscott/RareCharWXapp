@@ -14,7 +14,6 @@ Page({
     categories: [],
     showCategories: [],
     scrollTop: 0,
-    isScrolling: false,
     statusBarHeight: app.globalData.statusBarHeight,
     titleHeight: app.globalData.titleHeight,
     isLoading: true,
@@ -122,93 +121,82 @@ Page({
 
   // 搜索处理
   onSearch(e) {
-    // 清除之前的定时器
-    if (this.searchTimer) {
-      clearTimeout(this.searchTimer);
-    }
+    const searchText = e.detail.value;
+    
+    // 先过滤符号获取搜索结果
+    const filtered = SymbolUtils.filterAndSortSymbols(
+      this.data.allSymbols,
+      searchText,
+      '全部'  // 搜索时总是从"全部"分类开始
+    );
+    
+    // 更新分类列表，只保留搜索结果中的分类
+    const categoryUpdate = SymbolUtils.updateCategories(
+      filtered,
+      searchText,
+      this.data.categories
+    );
+    
+    this.setData({
+      searchText,
+      currentCategory: '全部',
+      scrollTop: 0,
+      showSymbols: filtered,
+      ...categoryUpdate
+    });
 
-    // 设置新的定时器，延迟300ms执行搜索
-    this.searchTimer = setTimeout(() => {
-      this.setData({
-        searchText: e.detail.value,
-        currentCategory: '全部',
-        scrollTop: 0
+    // 使用选择器获取滚动视图组件
+    const query = wx.createSelectorQuery();
+    query.select('.category-scroll').node().exec((res) => {
+      const scrollView = res[0].node;
+      scrollView?.scrollTo({
+        left: 0,
       });
-      this.filterSymbols(true);
-    }, 300);
+    });
   },
 
   // 切换分类
   switchCategory(e) {
-    if (this.data.isScrolling) {
-      return;
-    }
-
     const category = e.currentTarget.dataset.category;
+    // 给每个符号添加一个随机key
+    const filtered = SymbolUtils.filterAndSortSymbols(
+      this.data.allSymbols,
+      this.data.searchText,
+      category
+    ).map(symbol => ({
+      ...symbol,
+      _key: Math.random().toString(36).slice(2)  // 添加随机key
+    }));
+
     this.setData({
       currentCategory: category,
-      scrollTop: 0
+      scrollTop: 0,
+      showSymbols: filtered,
     });
-    this.filterSymbols(false);
   },
 
   // 过滤符号
-  filterSymbols(shouldUpdateCategories = true) {
-    const { searchText, currentCategory, allSymbols } = this.data;
-    
+  filterSymbols(keepCategory = false) {
+    const filtered = SymbolUtils.filterAndSortSymbols(
+      this.data.allSymbols,
+      this.data.searchText,
+      this.data.currentCategory
+    );
+
+    // 更新显示的符号列表
     this.setData({
-      isLoading: true
+      showSymbols: filtered
     });
 
-    setTimeout(() => {
-      const filtered = SymbolUtils.searchSymbols(
-        allSymbols,
-        searchText,
-        currentCategory
+    // 如果不保持分类，更新分类列表
+    if (!keepCategory) {
+      const categoryUpdate = SymbolUtils.updateCategories(
+        filtered, 
+        this.data.searchText,
+        this.data.categories
       );
-      
-      // 计算每个项目的行号
-      const symbolsWithRow = filtered.map((symbol, index) => {
-        const row = Math.floor(index / 2);
-        return {
-          ...symbol,
-          style: `--row: ${row}`
-        };
-      });
-      
-      let updateData = {
-        showSymbols: symbolsWithRow,
-        isLoading: false
-      };
-
-      // 只在搜索时更新分类列表，切换分类时保持分类列表不变
-      if (shouldUpdateCategories) {
-        // 获取搜索结果中包含的所有分类
-        let filteredCategories = ['全部'];
-        if (searchText) {
-          // 统计每个分类的数量
-          const categoryCount = {};
-          filtered.forEach(symbol => {
-            symbol.category.forEach(cat => {
-              categoryCount[cat] = (categoryCount[cat] || 0) + 1;
-            });
-          });
-
-          // 转换为数组并按数量降序排序
-          const orderedCategories = Object.entries(categoryCount)
-            .sort(([, a], [, b]) => b - a)  // 按数量降序排序
-            .map(([category]) => category);  // 只保留分类名
-
-          filteredCategories = filteredCategories.concat(orderedCategories);
-        } else {
-          filteredCategories = this.data.categories;
-        }
-        updateData.showCategories = filteredCategories;
-        updateData.currentCategory = '全部';
-      }
-      
-      this.setData(updateData);
-    }, 50);
+      this.setData(categoryUpdate);
+    }
   },
 
   // 显示符号详情
@@ -220,7 +208,7 @@ Page({
     });
     // 设置导航栏标题为符号描述
     wx.setNavigationBarTitle({
-      title: symbol.description
+      title: symbol.name
     });
   },
 
@@ -236,25 +224,12 @@ Page({
     });
   },
 
-  // 添加滚动事件处理
-  onSymbolScroll() {
-    if (this.scrollTimer) {
-      clearTimeout(this.scrollTimer);
-    }
-    
-    this.setData({ isScrolling: true });
-    
-    this.scrollTimer = setTimeout(() => {
-      this.setData({ isScrolling: false });
-    }, 200);
-  },
-
   // 设置分享给朋友
   onShareAppMessage() {
     // 如果当前有打开的符号详情，就分享该符号
     if (this.data.showDetail && this.data.currentSymbol) {
       return {
-        title: `${this.data.currentSymbol.symbol} - ${this.data.currentSymbol.description}`,
+        title: `${this.data.currentSymbol.symbol} - ${this.data.currentSymbol.name}`,
         path: `/pages/index/index?symbol=${encodeURIComponent(this.data.currentSymbol.symbol)}`
       }
     }
@@ -270,7 +245,7 @@ Page({
     // 朋友圈分享同样支持符号参数
     if (this.data.showDetail && this.data.currentSymbol) {
       return {
-        title: `${this.data.currentSymbol.symbol} - ${this.data.currentSymbol.description}`,
+        title: `${this.data.currentSymbol.symbol} - ${this.data.currentSymbol.name}`,
         query: `symbol=${encodeURIComponent(this.data.currentSymbol.symbol)}`
       }
     }
