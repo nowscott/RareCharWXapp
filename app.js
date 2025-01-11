@@ -8,15 +8,17 @@ App({
     const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
     const titleTop = menuButtonInfo.top;
     const titleHeight = menuButtonInfo.height;
-    
+    const titleSize = menuButtonInfo.height - 4;
+
     // 先初始化 globalData
     this.globalData = {
       statusBarHeight: titleTop + 'px',
       titleHeight: titleHeight + 'px',
+      titleSize: titleSize + 'px',
       fontLoaded: false,
       eventBus: EventBus
     };
-    
+
     // 加载字体
     FontManager.loadFont({
       onSuccess: () => {

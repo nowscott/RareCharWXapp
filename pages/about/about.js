@@ -31,6 +31,7 @@ Page({
     DEFAULT_VERSION: '0.0.1',
     statusBarHeight: app.globalData.statusBarHeight,
     titleHeight: app.globalData.titleHeight,
+    titleSize: app.globalData.titleSize,
 
     // 数据状态
     stats: {
@@ -79,13 +80,13 @@ Page({
       // 根据环境显示不同的版本号格式
       switch (accountInfo.miniProgram.envVersion) {
         case 'develop':
-          versionText = '当前版本：Dev Beta';
+          versionText = '当前版本：开发版';
           break;
         case 'trial':
-          versionText = '当前版本：Beta';
+          versionText = '当前版本：体验版';
           break;
         case 'release':
-          versionText = `当前版本：v${accountInfo.miniProgram.version || '1.0.0'}`;
+          versionText = `当前版本：v${accountInfo.miniProgram.version || '0.0.1'}`;
           break;
         default:
           versionText = '当前版本：v0.0.1';

@@ -16,6 +16,7 @@ Page({
     scrollTop: 0,
     statusBarHeight: app.globalData.statusBarHeight,
     titleHeight: app.globalData.titleHeight,
+    titleSize: app.globalData.titleSize,
     isLoading: true,
     app: getApp()
   },
@@ -82,27 +83,9 @@ Page({
   processData(data) {
     const symbols = data.symbols;
     
-    // 处理分类
-    const categorySet = new Set();
-    symbols.forEach(symbol => {
-      if(Array.isArray(symbol.category)) {
-        symbol.category.forEach(cat => categorySet.add(cat));
-      }
-    });
-    
-    // 将分类转换为数组并按照使用频率排序
-    const categoryArray = Array.from(categorySet);
-    const categoryCount = {};
-    symbols.forEach(symbol => {
-      symbol.category.forEach(cat => {
-        categoryCount[cat] = (categoryCount[cat] || 0) + 1;
-      });
-    });
-    
-    // 按使用频率排序分类
-    categoryArray.sort((a, b) => categoryCount[b] - categoryCount[a]);
-    
-    const categories = ['全部', ...categoryArray];
+    // 使用新的 getCategoryStats 获取分类统计
+    const categoryStats = SymbolUtils.getCategoryStats(symbols);
+    const categories = ['全部', ...categoryStats.map(stat => stat.category)];
     
     // 始终对原始数据进行随机排序
     const shuffledSymbols = SymbolUtils.shuffle([...symbols]);
@@ -123,18 +106,17 @@ Page({
   onSearch(e) {
     const searchText = e.detail.value;
     
-    // 先过滤符号获取搜索结果
-    const filtered = SymbolUtils.filterAndSortSymbols(
+    // 使用新的 searchSymbols 方法
+    const filtered = SymbolUtils.searchSymbols(
       this.data.allSymbols,
       searchText,
       '全部'  // 搜索时总是从"全部"分类开始
     );
     
-    // 更新分类列表，只保留搜索结果中的分类
+    // 使用新的 updateCategories 方法
     const categoryUpdate = SymbolUtils.updateCategories(
       filtered,
-      searchText,
-      this.data.categories
+      searchText
     );
     
     this.setData({
@@ -145,7 +127,7 @@ Page({
       ...categoryUpdate
     });
 
-    // 使用选择器获取滚动视图组件
+    // 滚动到顶部
     const query = wx.createSelectorQuery();
     query.select('.category-scroll').node().exec((res) => {
       const scrollView = res[0].node;
@@ -158,8 +140,9 @@ Page({
   // 切换分类
   switchCategory(e) {
     const category = e.currentTarget.dataset.category;
-    // 给每个符号添加一个随机key
-    const filtered = SymbolUtils.filterAndSortSymbols(
+    
+    // 使用新的 searchSymbols 方法
+    const filtered = SymbolUtils.searchSymbols(
       this.data.allSymbols,
       this.data.searchText,
       category
@@ -177,7 +160,8 @@ Page({
 
   // 过滤符号
   filterSymbols(keepCategory = false) {
-    const filtered = SymbolUtils.filterAndSortSymbols(
+    // 使用新的 searchSymbols 方法
+    const filtered = SymbolUtils.searchSymbols(
       this.data.allSymbols,
       this.data.searchText,
       this.data.currentCategory
@@ -192,8 +176,7 @@ Page({
     if (!keepCategory) {
       const categoryUpdate = SymbolUtils.updateCategories(
         filtered, 
-        this.data.searchText,
-        this.data.categories
+        this.data.searchText
       );
       this.setData(categoryUpdate);
     }

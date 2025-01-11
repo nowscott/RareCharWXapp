@@ -47,51 +47,86 @@ const SymbolUtils = {
   },
 
   /**
-   * 搜索符号
-   * @param {Array} symbols 符号数组
-   * @param {string} searchText 搜索文本
-   * @param {string} currentCategory 分类
-   * @returns {Array} 过滤后的符号数组
+   * 计算符号与搜索文本的匹配度分数
+   * @private
+   */
+  _getMatchScore(symbol, searchText) {
+    let score = 0;
+    const normalizedSearch = searchText.toLowerCase();
+
+    // 1. 符号本身匹配（最高优先级）
+    if (symbol.symbol.toLowerCase() === normalizedSearch) {
+      score += 100;  // 完全匹配
+    } else if (symbol.symbol.toLowerCase().includes(normalizedSearch)) {
+      score += 80;   // 部分匹配
+    }
+
+    // 2. 范畴（分类）匹配
+    if (symbol.category.some(cat => cat.toLowerCase() === normalizedSearch)) {
+      score += 50;   // 完全匹配
+    } else if (symbol.category.some(cat => cat.toLowerCase().includes(normalizedSearch))) {
+      score += 30;   // 部分匹配
+    }
+
+    // 3. 搜索词匹配
+    if (symbol.searchTerms?.some(term => term.toLowerCase() === normalizedSearch)) {
+      score += 60;   // 完全匹配
+    } else if (symbol.searchTerms?.some(term => term.toLowerCase().includes(normalizedSearch))) {
+      score += 40;   // 部分匹配
+    }
+
+    return score;
+  },
+
+  /**
+   * 搜索符号（合并了原 searchSymbols 和 filterAndSortSymbols 的功能）
    */
   searchSymbols(symbols, searchText, currentCategory) {
-    // 处理搜索文本
     const normalizedSearch = searchText?.trim().toLowerCase() || '';
-    
-    let result = symbols.filter(symbol => {
-      // 搜索匹配：符号本身、描述、检索词、分类都要匹配
-      const matchesSearch = !normalizedSearch || 
-        symbol.symbol.toLowerCase().includes(normalizedSearch) ||
-        symbol.name.toLowerCase().includes(normalizedSearch) ||
-        symbol.category.some(cat => cat.toLowerCase().includes(normalizedSearch)) ||
-        (symbol.searchTerms || [])
-          .map(term => term.toLowerCase())
-          .some(term => term.includes(normalizedSearch));
+    let result = [...symbols];
 
-      // 分类匹配
-      const matchesCategory = currentCategory === '全部' || 
-        symbol.category.includes(currentCategory);
+    // 先进行分类过滤
+    if (currentCategory !== '全部') {
+      result = result.filter(symbol => symbol.category.includes(currentCategory));
+    }
 
-      return matchesSearch && matchesCategory;
-    });
+    // 如果有搜索文本，进行搜索过滤和排序
+    if (normalizedSearch) {
+      result = result.filter(symbol => {
+        const matchesSymbol = symbol.symbol.toLowerCase().includes(normalizedSearch);
+        const matchesName = symbol.name.toLowerCase().includes(normalizedSearch);
+        const matchesCategory = symbol.category.some(cat => 
+          cat.toLowerCase().includes(normalizedSearch)
+        );
+        const matchesSearchTerms = (symbol.searchTerms || [])
+          .some(term => term.toLowerCase().includes(normalizedSearch));
 
-    // 如果是在搜索或者特定分类下，按照匹配度排序
-    if (normalizedSearch || currentCategory !== '全部') {
+        return matchesSymbol || matchesName || matchesCategory || matchesSearchTerms;
+      });
+
+      // 搜索时按匹配度排序
       result.sort((a, b) => {
-        // 计算匹配度分数
-        const aScore = getMatchScore(a, normalizedSearch);
-        const bScore = getMatchScore(b, normalizedSearch);
+        const aScore = this._getMatchScore(a, normalizedSearch);
+        const bScore = this._getMatchScore(b, normalizedSearch);
         
         if (aScore !== bScore) {
           return bScore - aScore;
         }
         
         // 匹配度相同时，按 Unicode 码点排序
-        const aNormalized = a.symbol.normalize('NFD');
-        const bNormalized = b.symbol.normalize('NFD');
-        return aNormalized.localeCompare(bNormalized);
+        return a.symbol.normalize('NFD').localeCompare(b.symbol.normalize('NFD'));
       });
     } else {
-      result = this.shuffle(result);
+      // 无搜索文本时的排序逻辑
+      if (currentCategory === '全部') {
+        // 全部分类下随机排序
+        result = this.shuffle(result);
+      } else {
+        // 其他分类下按 Unicode 码点排序
+        result.sort((a, b) => 
+          a.symbol.normalize('NFD').localeCompare(b.symbol.normalize('NFD'))
+        );
+      }
     }
 
     return result;
@@ -137,6 +172,37 @@ const SymbolUtils = {
   },
 
   /**
+   * 获取分类统计（合并了原 getCategories 和 updateCategories 的部分逻辑）
+   */
+  getCategoryStats(symbols) {
+    // 统计每个分类的符号数量
+    const categoryCount = {};
+    symbols.forEach(symbol => {
+      symbol.category.forEach(category => {
+        categoryCount[category] = (categoryCount[category] || 0) + 1;
+      });
+    });
+
+    // 转换为数组并按数量降序排序
+    return Object.entries(categoryCount)
+      .sort(([, a], [, b]) => b - a)
+      .map(([category, count]) => ({
+        category,
+        count
+      }));
+  },
+
+  /**
+   * 更新分类列表（使用优化后的 getCategoryStats）
+   */
+  updateCategories(symbols, searchText) {
+    const categoryStats = this.getCategoryStats(symbols);
+    return {
+      showCategories: ['全部', ...categoryStats.map(stat => stat.category)]
+    };
+  },
+
+  /**
    * 统计符号数量
    * @param {Array} symbols 符号数组
    * @returns {Object} 统计结果，包含总数和前三分类的数量
@@ -166,146 +232,6 @@ const SymbolUtils = {
 
     return result;
   },
-
-  /**
-   * 获取分类权重
-   * @param {string} category 分类
-   * @returns {number} 权重
-   */
-  getCategoryWeight(category) {
-    const weights = {
-      '角分': 1,
-      '角秒': 2,
-      '度数': 3,
-      '摄氏度': 4,
-      '华氏度': 5,
-      '姆欧': 6,
-      '箭头': 7,
-      '双向箭头': 8,
-      '可逆反应箭头': 9,
-      '偏导数': 10,
-      // 可以继续添加其他分类的权重
-    };
-    return weights[category] || 999; // 未定义权重的分类放到最后
-  },
-
-  /**
-   * 更新分类列表
-   * @param {Array} symbols 符号数组
-   * @param {string} searchText 搜索文本
-   * @param {Array} categories 分类列表
-   * @returns {Object} 更新后的分类列表和当前分类
-   */
-  updateCategories(symbols, searchText, categories) {
-    // 获取搜索结果中包含的所有分类
-    let filteredCategories = ['全部'];
-    if (symbols.length > 0) {
-      // 统计搜索结果中的分类数量
-      const categoryCount = {};
-      symbols.forEach(symbol => {
-        symbol.category.forEach(cat => {
-          categoryCount[cat] = (categoryCount[cat] || 0) + 1;
-        });
-      });
-
-      // 转换为数组并按数量降序排序
-      const orderedCategories = Object.entries(categoryCount)
-        .sort(([, a], [, b]) => b - a)  // 按数量降序排序
-        .map(([category]) => category);  // 只保留分类名
-
-      filteredCategories = filteredCategories.concat(orderedCategories);
-    } else {
-      filteredCategories = categories;
-    }
-
-    return {
-      showCategories: filteredCategories,
-    };
-  },
-
-  /**
-   * 过滤并排序符号
-   * @param {Array} allSymbols 所有符号数组
-   * @param {string} searchText 搜索文本
-   * @param {string} currentCategory 当前分类
-   * @returns {Array} 过滤后的符号数组
-   */
-  filterAndSortSymbols(allSymbols, searchText, currentCategory) {
-    let filtered = allSymbols;
-    const normalizedSearch = searchText.toLowerCase();
-
-    // 先对所有数据进行一次随机排序，避免保留上一次的顺序
-    filtered = this.shuffle([...filtered]);
-
-    // 如果有搜索文本，按照匹配度排序
-    if (normalizedSearch) {
-      filtered = filtered.filter(symbol => {
-        // 1. 符号本身匹配
-        const symbolMatch = symbol.symbol.toLowerCase().includes(normalizedSearch);
-        
-        // 2. 范畴（分类）匹配
-        const categoryMatch = symbol.category.some(cat => 
-          cat.toLowerCase().includes(normalizedSearch)
-        );
-        
-        // 3. 搜索词匹配
-        const searchTermsMatch = symbol.searchTerms?.some(term => 
-          term.toLowerCase().includes(normalizedSearch)
-        );
-
-        return symbolMatch || categoryMatch || searchTermsMatch;
-      });
-    }
-
-    // 分类过滤（如果选择了特定分类）
-    if (currentCategory !== '全部') {
-      filtered = filtered.filter(symbol => 
-        symbol.category.includes(currentCategory)
-      );
-      // 在特定分类下，按匹配度排序
-      if (normalizedSearch) {
-        filtered.sort((a, b) => {
-          const aScore = this.getMatchScore(a, normalizedSearch);
-          const bScore = this.getMatchScore(b, normalizedSearch);
-          return bScore - aScore;
-        });
-      }
-    } else {
-      // 在"全部"分类下，总是随机排序
-      filtered = this.shuffle([...filtered]);
-    }
-
-    return filtered;
-  },
-
-  // 计算匹配度分数
-  getMatchScore(symbol, searchText) {
-    let score = 0;
-    const normalizedSearch = searchText.toLowerCase();
-
-    // 1. 符号本身匹配（最高优先级）
-    if (symbol.symbol.toLowerCase() === normalizedSearch) {
-      score += 100;  // 完全匹配
-    } else if (symbol.symbol.toLowerCase().includes(normalizedSearch)) {
-      score += 80;   // 部分匹配
-    }
-
-    // 2. 范畴（分类）匹配
-    if (symbol.category.some(cat => cat.toLowerCase() === normalizedSearch)) {
-      score += 50;   // 完全匹配
-    } else if (symbol.category.some(cat => cat.toLowerCase().includes(normalizedSearch))) {
-      score += 30;   // 部分匹配
-    }
-
-    // 3. 搜索词匹配
-    if (symbol.searchTerms?.some(term => term.toLowerCase() === normalizedSearch)) {
-      score += 60;   // 完全匹配
-    } else if (symbol.searchTerms?.some(term => term.toLowerCase().includes(normalizedSearch))) {
-      score += 40;   // 部分匹配
-    }
-
-    return score;
-  }
 };
 
 module.exports = SymbolUtils; 

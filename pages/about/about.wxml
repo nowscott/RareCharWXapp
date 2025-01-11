@@ -2,64 +2,66 @@
   <!-- 自定义导航栏 -->
   <view class="custom-nav">
     <view class="nav-title" 
-    style="margin-top:{{statusBarHeight}};height:{{titleHeight}};font-size:{{titleHeight}};"
+    style="margin-top:{{statusBarHeight}};height:{{titleHeight}};font-size:{{titleSize}};"
     >关于</view>
   </view>
   <view class="container" style="margin-top: calc({{statusBarHeight}} + {{titleHeight}})">
-    <!-- 数据更新信息 -->
-    <view class="section update-section">
-      <view class="update-info">
-        <view class="update-details">
-          <view class="version-line">
-            <text class="label">当前数据版本：</text>
-            <text class="value">v{{stats.version || '暂无版本信息'}}</text>
+    <view class="content-wrapper">
+      <!-- 数据更新信息 -->
+      <view class="section update-section">
+        <view class="update-info">
+          <view class="update-details">
+            <view class="version-line">
+              <text class="label">当前数据版本：</text>
+              <text class="value">v{{stats.version || '暂无版本信息'}}</text>
+            </view>
+            <view class="time-line">
+              <text class="label">数据更新时间：</text>
+              <text class="value">{{stats.updateTime || '暂无更新时间'}}</text>
+            </view>
           </view>
-          <view class="time-line">
-            <text class="label">数据更新时间：</text>
-            <text class="value">{{stats.updateTime || '暂无更新时间'}}</text>
+          <button class="update-btn {{stats.isUpdating ? 'updating' : ''}} {{stats.hasUpdate ? 'has-update' : ''}}" bindtap="updateData" disabled="{{stats.isUpdating || !stats.canUpdate}}">
+            {{stats.isUpdating ? '更新中' : '更新数据'}}
+          </button>
+        </view>
+      </view>
+      <!-- 介绍 -->
+      <view class="section">
+        <text class="section-title">{{texts.intro.title}}</text>
+        <text class="section-content">{{texts.intro.content}}</text>
+      </view>
+      <!-- 统计框 -->
+      <view class="stats-box">
+        <view class="stats-item">
+          <text class="stats-num">{{stats.total}}</text>
+          <text class="stats-label">全部符号</text>
+        </view>
+        <view class="stats-item" wx:for="{{stats.topCategories}}" wx:key="category">
+          <text class="stats-num">{{item.count}}</text>
+          <text class="stats-label">{{item.category}}</text>
+        </view>
+      </view>
+      <!-- 使用说明 -->
+      <view class="section">
+        <text class="section-title">{{texts.guide.title}}</text>
+        <view class="guide-list">
+          <view class="guide-item" wx:for="{{texts.guide.steps}}" wx:key="*this">
+            <text class="guide-text">{{item}}</text>
           </view>
         </view>
-        <button class="update-btn {{stats.isUpdating ? 'updating' : ''}} {{stats.hasUpdate ? 'has-update' : ''}}" bindtap="updateData" disabled="{{stats.isUpdating || !stats.canUpdate}}">
-          {{stats.isUpdating ? '更新中' : '更新数据'}}
-        </button>
       </view>
-    </view>
-    <!-- 介绍 -->
-    <view class="section">
-      <text class="section-title">{{texts.intro.title}}</text>
-      <text class="section-content">{{texts.intro.content}}</text>
-    </view>
-    <!-- 统计框 -->
-    <view class="stats-box">
-      <view class="stats-item">
-        <text class="stats-num">{{stats.total}}</text>
-        <text class="stats-label">全部符号</text>
-      </view>
-      <view class="stats-item" wx:for="{{stats.topCategories}}" wx:key="category">
-        <text class="stats-num">{{item.count}}</text>
-        <text class="stats-label">{{item.category}}</text>
-      </view>
-    </view>
-    <!-- 使用说明 -->
-    <view class="section">
-      <text class="section-title">{{texts.guide.title}}</text>
-      <view class="guide-list">
-        <view class="guide-item" wx:for="{{texts.guide.steps}}" wx:key="*this">
-          <text class="guide-text">{{item}}</text>
+      <!-- 联系方式 -->
+      <view class="section">
+        <text class="section-title">{{contact.title}}</text>
+        <view class="contact-list">
+          <view class="contact-item" wx:for="{{contact.items}}" wx:key="type" bindtap="copyContact" data-type="{{item.type}}">
+            <image class="contact-icon" src="{{item.icon}}" />
+            <text class="contact-text">{{item.text}}</text>
+          </view>
         </view>
       </view>
     </view>
-    <!-- 联系方式 -->
-    <view class="section">
-      <text class="section-title">{{contact.title}}</text>
-      <view class="contact-list">
-        <view class="contact-item" wx:for="{{contact.items}}" wx:key="type" bindtap="copyContact" data-type="{{item.type}}">
-          <image class="contact-icon" src="{{item.icon}}" />
-          <text class="contact-text">{{item.text}}</text>
-        </view>
-      </view>
-    </view>
-    <!-- 备案信息 -->
+    <!-- 底部信息 -->
     <view class="footer">
       <text class="footer-text version">{{texts.version}}</text>
       <text class="footer-text icp">{{texts.footer.icp}}</text>
