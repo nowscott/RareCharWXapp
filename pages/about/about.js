@@ -66,7 +66,10 @@ Page({
           value: "nowscott@qq.com"
         }
       ]
-    }
+    },
+
+    app: getApp(),
+    fontLoaded: false
   },
 
   onLoad() {

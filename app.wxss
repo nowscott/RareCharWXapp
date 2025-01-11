@@ -33,9 +33,9 @@ page {
     --color-bg-primary: #1a1a1a;
     --color-bg-secondary: #2a2a2a;
     --color-text-primary: #ffffff;
-    --color-text-secondary: #cccccc;
-    --color-text-tertiary: #999999;
-    --color-text-quaternary: #666666;
+    --color-text-secondary: #e0e0e0;
+    --color-text-tertiary: #b0b0b0;
+    --color-text-quaternary: #808080;
     --color-border: rgba(255, 255, 255, 0.05);
     --color-overlay: rgba(0, 0, 0, 0.9);
     --shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.2);

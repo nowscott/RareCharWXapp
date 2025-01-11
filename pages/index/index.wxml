@@ -1,8 +1,10 @@
 <!--index.wxml-->
-<view class="page">
+<view class="page {{fontLoaded ? 'font-loaded' : ''}}">
  <!-- 自定义导航栏 -->
  <view class="custom-nav">
-      <view class="nav-title" style="margin-top: {{statusBarHeight}}; height: {{titleHeight}}">复制符</view>
+      <view class="nav-title" 
+      style="margin-top:{{statusBarHeight}};height:{{titleHeight}};font-size:{{titleHeight}};"
+      >复制符</view>
  </view>
   <view class="container">
     <!-- 搜索区域 -->

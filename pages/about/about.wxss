@@ -20,7 +20,6 @@
 }
 
 .nav-title {
-  font-size: 36rpx;
   font-weight: 500;
   color: var(--color-text-primary);
   line-height: 1;
@@ -28,6 +27,8 @@
   align-items: center;
   margin-left: 24rpx;
   margin-bottom: 8rpx;
+  height: 100%;
+  font-family: wenkai, system-ui, sans-serif;
 }
 
 .container {
@@ -93,6 +94,8 @@
   font-weight: bold;
   margin-bottom: 16rpx;
   display: block;
+  color: var(--color-text-tertiary);
+  opacity: 0.8;
 }
 
 .section-content {

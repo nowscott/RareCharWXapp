@@ -1,7 +1,9 @@
-<view class="page">
+<view class="page {{fontLoaded ? 'font-loaded' : ''}}">
   <!-- 自定义导航栏 -->
   <view class="custom-nav">
-    <view class="nav-title" style="margin-top: {{statusBarHeight}};height:{{titleHeight}}">关于</view>
+    <view class="nav-title" 
+    style="margin-top:{{statusBarHeight}};height:{{titleHeight}};font-size:{{titleHeight}};"
+    >关于</view>
   </view>
   <view class="container" style="margin-top: calc({{statusBarHeight}} + {{titleHeight}})">
     <!-- 数据更新信息 -->

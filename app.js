@@ -1,5 +1,6 @@
 // app.js
 const EventBus = require('./utils/eventBus.js');
+const FontManager = require('./utils/font.js');
 
 App({
   onLaunch() {
@@ -8,11 +9,20 @@ App({
     const titleTop = menuButtonInfo.top;
     const titleHeight = menuButtonInfo.height;
     
+    // 先初始化 globalData
     this.globalData = {
       statusBarHeight: titleTop + 'px',
       titleHeight: titleHeight + 'px',
+      fontLoaded: false,
       eventBus: EventBus
     };
+    
+    // 加载字体
+    FontManager.loadFont({
+      onSuccess: () => {
+        this.globalData.fontLoaded = true;
+      }
+    });
 
     // 检查小程序更新
     this.checkForUpdate();

@@ -17,7 +17,8 @@ Page({
     isScrolling: false,
     statusBarHeight: app.globalData.statusBarHeight,
     titleHeight: app.globalData.titleHeight,
-    isLoading: true
+    isLoading: true,
+    app: getApp()
   },
 
   onLoad() {
