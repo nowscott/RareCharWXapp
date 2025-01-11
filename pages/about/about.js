@@ -23,7 +23,8 @@ Page({
       footer: {
         icp: "辽ICP备xxxxxxxx号",
         copyright: "© 2025 - NowScott"
-      }
+      },
+      version: ''
     },
 
     // 系统配置
@@ -69,6 +70,31 @@ Page({
   },
 
   onLoad() {
+    try {
+      const accountInfo = wx.getAccountInfoSync();
+      let versionText = '';
+      // 根据环境显示不同的版本号格式
+      switch (accountInfo.miniProgram.envVersion) {
+        case 'develop':
+          versionText = '当前版本：Dev Beta';
+          break;
+        case 'trial':
+          versionText = '当前版本：Beta';
+          break;
+        case 'release':
+          versionText = `当前版本：v${accountInfo.miniProgram.version || '1.0.0'}`;
+          break;
+        default:
+          versionText = '当前版本：v0.0.1';
+      }
+      
+      this.setData({
+        'texts.version': `${versionText} `
+      });
+    } catch (e) {
+      console.error('获取版本信息失败:', e);
+    }
+
     this.fetchStatsData();
     const timestamp = wx.getStorageSync('symbols_timestamp');
     const version = CacheManager.getCurrentVersion();

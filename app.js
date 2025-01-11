@@ -1,4 +1,6 @@
 // app.js
+const EventBus = require('./utils/eventBus.js');
+
 App({
   onLaunch() {
     // 获取胶囊按钮位置信息
@@ -9,6 +11,7 @@ App({
     this.globalData = {
       statusBarHeight: titleTop + 'px',
       titleHeight: titleHeight + 'px',
+      eventBus: EventBus
     };
 
     // 检查小程序更新

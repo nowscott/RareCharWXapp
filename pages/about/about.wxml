@@ -59,6 +59,7 @@
     </view>
     <!-- 备案信息 -->
     <view class="footer">
+      <text class="footer-text version">{{texts.version}}</text>
       <text class="footer-text icp">{{texts.footer.icp}}</text>
       <text class="footer-text copyright">{{texts.footer.copyright}}</text>
     </view>

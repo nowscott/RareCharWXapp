@@ -44,6 +44,7 @@ const UpdateManager = {
         if (res.data && res.data.symbols) {
           CacheManager.saveData(res.data);
           onSuccess?.(res.data);
+          getApp().globalData.eventBus.emit('dataUpdated');
           wx.showToast({
             title: '数据已更新',
             icon: 'success'

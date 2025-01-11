@@ -23,6 +23,19 @@ Page({
   onLoad() {
     // 从API获取数据
     this.fetchSymbolsData();
+   
+    // 监听数据更新事件
+    this.onDataUpdate = () => {
+      this.fetchSymbolsData();
+    };
+    getApp().globalData.eventBus.on('dataUpdated', this.onDataUpdate);
+  },
+
+  onUnload() {
+    // 页面销毁时取消事件监听
+    if (this.onDataUpdate) {
+      getApp().globalData.eventBus.off('dataUpdated', this.onDataUpdate);
+    }
   },
 
   // 新增获取数据的方法
@@ -31,6 +44,10 @@ Page({
     const cachedData = CacheManager.getData();
     if (cachedData) {
       this.processData(cachedData);
+      // 如果有搜索文本或者非全部分类，重新应用过滤
+      if (this.data.searchText || this.data.currentCategory !== '全部') {
+        this.filterSymbols(true);
+      }
       return;
     }
 
@@ -42,6 +59,10 @@ Page({
           CacheManager.saveData(res.data);
           // 处理数据
           this.processData(res.data);
+          // 如果有搜索文本或者非全部分类，重新应用过滤
+          if (this.data.searchText || this.data.currentCategory !== '全部') {
+            this.filterSymbols(true);
+          }
         }
       },
       fail: (err) => {
@@ -69,11 +90,26 @@ Page({
       }
     });
     
-    const categories = ['全部', ...Array.from(categorySet)];
+    // 将分类转换为数组并按照使用频率排序
+    const categoryArray = Array.from(categorySet);
+    const categoryCount = {};
+    symbols.forEach(symbol => {
+      symbol.category.forEach(cat => {
+        categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+      });
+    });
+    
+    // 按使用频率排序分类
+    categoryArray.sort((a, b) => categoryCount[b] - categoryCount[a]);
+    
+    const categories = ['全部', ...categoryArray];
+    
+    // 始终对原始数据进行随机排序
+    const shuffledSymbols = SymbolUtils.shuffle([...symbols]);
     
     this.setData({
       allSymbols: symbols,
-      showSymbols: symbols,
+      showSymbols: shuffledSymbols,
       categories: categories,
       showCategories: categories,
       isLoading: false
