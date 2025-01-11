@@ -57,7 +57,7 @@ Page({
       success: (res) => {
         if(res.data && res.data.symbols) {
           // 保存到缓存
-          CacheManager.saveData(res.data);
+          StorageManager.saveData(res.data);
           // 处理数据
           this.processData(res.data);
           // 如果有搜索文本或者非全部分类，重新应用过滤
