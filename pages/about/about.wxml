@@ -1,4 +1,4 @@
-<view class="page {{fontLoaded ? 'font-loaded' : ''}}">
+<view class="page">
   <!-- 自定义导航栏 -->
   <view class="custom-nav">
     <view class="nav-title" 
