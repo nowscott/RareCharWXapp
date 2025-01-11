@@ -203,11 +203,11 @@ const SymbolUtils = {
   },
 
   /**
-   * 统计符号数量
+   * 获取统计数据
    * @param {Array} symbols 符号数组
    * @returns {Object} 统计结果，包含总数和前三分类的数量
    */
-  countSymbols(symbols) {
+  getStats(symbols) {
     // 按分类统计
     const categoryCount = {};
     symbols.forEach(symbol => {
@@ -222,16 +222,38 @@ const SymbolUtils = {
       .slice(0, 3);
 
     // 构建返回结果
-    const result = {
+    return {
       total: symbols.length,
       topCategories: sortedCategories.map(([category, count]) => ({
         category,
         count
       }))
     };
-
-    return result;
   },
+
+  /**
+   * 从远程获取统计数据
+   * @returns {Promise} 统计数据的 Promise
+   */
+  async fetchStats() {
+    try {
+      const res = await new Promise((resolve, reject) => {
+        wx.request({
+          url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json',
+          success: resolve,
+          fail: reject
+        });
+      });
+
+      if (res.data && res.data.symbols) {
+        return this.getStats(res.data.symbols);
+      }
+      throw new Error('Invalid data format');
+    } catch (err) {
+      console.error('获取统计数据失败:', err);
+      throw err;
+    }
+  }
 };
 
 module.exports = SymbolUtils; 

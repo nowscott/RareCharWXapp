@@ -1,7 +1,7 @@
 const app = getApp();
-const CacheManager = require('../../utils/cache.js');
+const StorageManager = require('../../utils/storage.js');
 const UpdateManager = require('../../utils/update.js');
-const StatsManager = require('../../utils/stats.js');
+const SymbolUtils = require('../../utils/utils.js');
 
 Page({
   data: {
@@ -101,7 +101,7 @@ Page({
 
     this.fetchStatsData();
     const timestamp = wx.getStorageSync('symbols_timestamp');
-    const version = CacheManager.getCurrentVersion();
+    const version = StorageManager.getCurrentVersion();
     if (timestamp) {
       this.setData({
         'stats.updateTime': UpdateManager.formatTime(timestamp),
@@ -132,15 +132,19 @@ Page({
     });
   },
 
-  fetchStatsData() {
-    StatsManager.fetchStatsData({
-      onSuccess: (stats) => {
-        this.setData({
-          'stats.total': stats.total,
-          'stats.topCategories': stats.topCategories
-        });
-      }
-    });
+  async fetchStatsData() {
+    try {
+      const stats = await SymbolUtils.fetchStats();
+      this.setData({
+        'stats.total': stats.total,
+        'stats.topCategories': stats.topCategories
+      });
+    } catch (err) {
+      wx.showToast({
+        title: '统计数据加载失败',
+        icon: 'none'
+      });
+    }
   },
   
   copyContact(e) {

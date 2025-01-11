@@ -3,7 +3,7 @@ Component({
     isCopying: false,
     unicodePoints: [],  // 存储所有码点
     promotionSlogan: '探索更多符号的奥秘',  // 添加推广标语
-    statusBarHeight: 0  // 存储状态栏高度
+    statusBarHeight: getApp().globalData.statusBarHeight || 0  // 从全局获取状态栏高度
   },
 
   properties: {

@@ -1,4 +1,4 @@
-const CacheManager = require('./cache.js');
+const StorageManager = require('./storage.js');
 
 const UPDATE_INTERVAL = 60 * 60 * 1000; // 1小时更新间隔
 
@@ -36,13 +36,13 @@ const UpdateManager = {
     }
 
     onStart?.();
-    CacheManager.clearCache();
+    StorageManager.clearCache();
 
     wx.request({
       url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json',
       success: (res) => {
         if (res.data && res.data.symbols) {
-          CacheManager.saveData(res.data);
+          StorageManager.saveData(res.data);
           onSuccess?.(res.data);
           getApp().globalData.eventBus.emit('dataUpdated');
           wx.showToast({
@@ -68,7 +68,7 @@ const UpdateManager = {
   // 检查更新
   async checkUpdate(callbacks = {}) {
     const {onNewVersion} = callbacks;
-    const newVersion = await CacheManager.checkUpdate();
+    const newVersion = await StorageManager.checkUpdate();
     if (newVersion) {
       onNewVersion?.(newVersion);
     }

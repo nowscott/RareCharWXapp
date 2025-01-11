@@ -1,7 +1,7 @@
 // index.js
 const app = getApp();
 const SymbolUtils = require('../../utils/utils.js');
-const CacheManager = require('../../utils/cache.js');
+const StorageManager = require('../../utils/storage.js');
 
 Page({
   data: {
@@ -42,7 +42,7 @@ Page({
   // 新增获取数据的方法
   fetchSymbolsData() {
     // 先尝试从缓存获取数据
-    const cachedData = CacheManager.getData();
+    const cachedData = StorageManager.getData();
     if (cachedData) {
       this.processData(cachedData);
       // 如果有搜索文本或者非全部分类，重新应用过滤

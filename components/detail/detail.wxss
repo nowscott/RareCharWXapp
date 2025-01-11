@@ -22,10 +22,9 @@
 .detail-card {
   position: relative;
   width: 80%;
-  max-height: 72vh;
   background: var(--color-bg-secondary);
   border-radius: 16rpx;
-  padding: 16rpx 40rpx;
+  padding: 24rpx 40rpx;
   transform: translateY(50rpx);
   transition: all 0.3s;
   display: flex;
@@ -37,8 +36,10 @@
 }
 
 .detail-symbol {
-  font-size: 100rpx;
+  font-size: 120rpx;
   color: var(--color-text-primary);
+  line-height: 1.2;
+  margin-bottom: 16rpx;
 }
 
 .detail-category {
@@ -55,8 +56,8 @@
 .detail-name {
   font-size: 32rpx;
   color: #333;
-  margin-bottom: 20rpx;
-  line-height: 1.5;
+  margin-bottom: 16rpx;
+  line-height: 1.4;
 }
 
 .detail-notes {
@@ -114,7 +115,7 @@
   font-size: 20rpx;
   color: var(--color-text-tertiary);
   text-align: center;
-  margin: 8rpx 0 16rpx;
+  margin: 8rpx 0 12rpx;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -132,7 +133,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8rpx;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
 }
 
 .detail-category {
@@ -146,7 +147,7 @@
 }
 
 .promotion-area {
-  margin-top: 16rpx;
+  margin-top: 12rpx;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -159,8 +160,8 @@
 }
 
 .qr-code {
-  width: 80rpx;
-  height: 80rpx;
+  width: 72rpx;
+  height: 72rpx;
   border-radius: 6rpx;
 }
 
@@ -170,7 +171,6 @@
 
 .detail-content {
   padding: 0;
-  flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -180,11 +180,11 @@
 }
 
 .safe-area-top {
-  height: var(--status-bar-height, 88rpx);
+  height: 12rpx;
   flex-shrink: 0;
 }
 
 .safe-area-bottom {
-  height: var(--status-bar-height, 88rpx);
+  height: 12rpx;
   flex-shrink: 0;
 } 
