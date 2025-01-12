@@ -41,9 +41,9 @@
   background: var(--color-bg-primary);
   width: 100%;
   overflow-x: auto;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-  -webkit-overflow-scrolling: touch; /* iOS 滚动更流畅 */
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  z-index: 10;
 }
 
 /* Webkit 浏览器（Chrome、Safari等）隐藏滚动条 */
@@ -58,8 +58,10 @@
   display: inline-flex;
   padding: 16rpx 24rpx;
   box-sizing: border-box;
-  width: auto;
-  overflow: hidden;
+  width: fit-content;
+  min-width: 100%;
+  overflow: visible;
+  position: relative;
 }
 
 .category-item {
@@ -73,6 +75,7 @@
   transition: all 0.3s;
   white-space: nowrap;
   box-shadow: var(--shadow);
+  flex-shrink: 0;
 }
 
 .category-item.active {
@@ -97,10 +100,15 @@
   gap: 16rpx;
   padding: 0 24rpx;
   transition: opacity 0.2s;
+  min-height: 100rpx;
 }
 
 .symbols-list.loading {
   opacity: 0.6;
+}
+
+.symbols-list.scrolling {
+  pointer-events: none;  /* 滚动时禁止交互 */
 }
 
 .symbol-item {
@@ -113,16 +121,19 @@
   justify-content: space-between;
   box-shadow: var(--shadow);
   min-height: 180rpx;
-  animation: fadeIn 0.3s ease-out forwards;
+  animation: slideDown 0.3s ease-out forwards;
   opacity: 0;
   will-change: transform, opacity;
+  transform-origin: top center;
+  height: auto;
+  overflow: visible;
 }
 
-/* 定义淡入动画 */
-@keyframes fadeIn {
+/* 修改为从上往下的动画 */
+@keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(20rpx);
+    transform: translateY(-20rpx);
   }
   to {
     opacity: 1;
@@ -130,10 +141,9 @@
   }
 }
 
-/* 基于网格位置的动画延迟 */
-.symbol-item:nth-child(2n-1),
-.symbol-item:nth-child(2n) {
-  animation-delay: calc(var(--row) * 0.05s);
+/* 修改延迟时间计算方式，让上面的项目先出现 */
+.symbol-item:nth-child(n) {
+  animation-delay: calc(var(--index, 0) * 0.05s);
 }
 
 .symbol {
@@ -160,6 +170,7 @@
   text-align: center;
   color: var(--color-text-quaternary);
   padding: 60rpx 0;
+  width: 100%;
 }
 
 .symbol-detail {

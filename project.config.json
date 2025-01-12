@@ -20,7 +20,7 @@
       "outputPath": ""
     },
     "condition": false,
-    "urlCheck": false
+    "urlCheck": true
   },
   "condition": {},
   "editorSetting": {

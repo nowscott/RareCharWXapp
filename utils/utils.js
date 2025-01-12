@@ -82,12 +82,21 @@ const SymbolUtils = {
    * 搜索符号（合并了原 searchSymbols 和 filterAndSortSymbols 的功能）
    */
   searchSymbols(symbols, searchText, currentCategory) {
+    // 确保输入参数都是有效的
+    if (!Array.isArray(symbols) || !symbols.length) {
+      console.warn('Invalid symbols array:', symbols);
+      return [];
+    }
+
     const normalizedSearch = searchText?.trim().toLowerCase() || '';
-    let result = [...symbols];
+    let result = [...symbols];  // 创建一个新的数组副本
 
     // 先进行分类过滤
-    if (currentCategory !== '全部') {
-      result = result.filter(symbol => symbol.category.includes(currentCategory));
+    if (currentCategory && currentCategory !== '全部') {
+      result = result.filter(symbol => 
+        Array.isArray(symbol.category) && 
+        symbol.category.includes(currentCategory)
+      );
     }
 
     // 如果有搜索文本，进行搜索过滤和排序
@@ -253,6 +262,35 @@ const SymbolUtils = {
       console.error('获取统计数据失败:', err);
       throw err;
     }
+  },
+
+  /**
+   * 处理分类切换
+   * @param {Array} allSymbols 所有符号数组
+   * @param {string} category 目标分类
+   * @param {string} searchText 当前搜索文本
+   * @param {string} currentCategory 当前分类
+   * @returns {Object|null} 返回更新数据，如果分类相同则返回 null
+   */
+  handleCategorySwitch(allSymbols, category, searchText, currentCategory) {
+    if (category === currentCategory) {
+      return null;
+    }
+
+    // 立即返回分类切换
+    return {
+      currentCategory: category,  // 立即更新分类
+      showSymbols: [],           // 先清空列表
+      _pendingSymbols: this.searchSymbols(  // 后台开始筛选
+        allSymbols,
+        searchText,
+        category
+      ).map((symbol, index) => ({
+        ...symbol,
+        _key: Math.random().toString(36).slice(2),
+        '--index': index
+      }))
+    };
   }
 };
 

@@ -18,13 +18,14 @@ Page({
     titleHeight: app.globalData.titleHeight,
     titleSize: app.globalData.titleSize,
     isLoading: true,
-    app: getApp()
+    app: getApp(),
+    isScrolling: false,
+    scrollTimer: null
   },
 
   onLoad() {
     // 从API获取数据
     this.fetchSymbolsData();
-   
     // 监听数据更新事件
     this.onDataUpdate = () => {
       this.fetchSymbolsData();
@@ -82,14 +83,11 @@ Page({
   // 处理数据的方法
   processData(data) {
     const symbols = data.symbols;
-    
     // 使用新的 getCategoryStats 获取分类统计
     const categoryStats = SymbolUtils.getCategoryStats(symbols);
     const categories = ['全部', ...categoryStats.map(stat => stat.category)];
-    
     // 始终对原始数据进行随机排序
     const shuffledSymbols = SymbolUtils.shuffle([...symbols]);
-    
     this.setData({
       allSymbols: symbols,
       showSymbols: shuffledSymbols,
@@ -105,20 +103,17 @@ Page({
   // 搜索处理
   onSearch(e) {
     const searchText = e.detail.value;
-    
     // 使用新的 searchSymbols 方法
     const filtered = SymbolUtils.searchSymbols(
       this.data.allSymbols,
       searchText,
       '全部'  // 搜索时总是从"全部"分类开始
     );
-    
     // 使用新的 updateCategories 方法
     const categoryUpdate = SymbolUtils.updateCategories(
       filtered,
       searchText
     );
-    
     this.setData({
       searchText,
       currentCategory: '全部',
@@ -126,7 +121,6 @@ Page({
       showSymbols: filtered,
       ...categoryUpdate
     });
-
     // 滚动到顶部
     const query = wx.createSelectorQuery();
     query.select('.category-scroll').node().exec((res) => {
@@ -137,42 +131,81 @@ Page({
     });
   },
 
-  // 切换分类
+  // 添加触摸相关变量
+  touchStartTime: 0,
+  touchStartX: 0,
+  isSwiping: false,
+
+  // 添加触摸开始事件
+  handleTouchStart(e) {
+    this.touchStartTime = Date.now();
+    this.touchStartX = e.touches[0].pageX;
+    this.isSwiping = false;
+  },
+
+  // 添加触摸移动事件
+  handleTouchMove(e) {
+    const deltaX = Math.abs(e.touches[0].pageX - this.touchStartX);
+    if (deltaX > 10) {  // 如果移动距离超过10px，认为是在滑动
+      this.isSwiping = true;
+    }
+  },
+
+  // 添加触摸结束事件
+  handleTouchEnd() {
+    // 重置滑动状态
+    this.isSwiping = false;
+  },
+
+  // 添加滚动开始处理
+  onSymbolsScrollStart() {
+    this.setData({ isScrolling: true });
+  },
+
+  // 添加滚动结束处理
+  onSymbolsScrollEnd() {
+    this.setData({ isScrolling: false });
+  },
+
+  // 修改切换分类的处理函数
   switchCategory(e) {
     const category = e.currentTarget.dataset.category;
     
-    // 使用新的 searchSymbols 方法
-    const filtered = SymbolUtils.searchSymbols(
+    const updateData = SymbolUtils.handleCategorySwitch(
       this.data.allSymbols,
+      category,
       this.data.searchText,
-      category
-    ).map(symbol => ({
-      ...symbol,
-      _key: Math.random().toString(36).slice(2)  // 添加随机key
-    }));
+      this.data.currentCategory
+    );
 
-    this.setData({
-      currentCategory: category,
-      scrollTop: 0,
-      showSymbols: filtered,
-    });
+    if (updateData) {
+      // 立即更新分类和显示加载状态
+      this.setData({
+        currentCategory: updateData.currentCategory,
+        scrollTop: 0,
+        isLoading: true  // 显示加载状态
+      });
+
+      // 使用 nextTick 延迟更新符号列表
+      wx.nextTick(() => {
+        this.setData({
+          showSymbols: updateData._pendingSymbols,
+          isLoading: false  // 加载完成
+        });
+      });
+    }
   },
 
   // 过滤符号
   filterSymbols(keepCategory = false) {
-    // 使用新的 searchSymbols 方法
     const filtered = SymbolUtils.searchSymbols(
       this.data.allSymbols,
       this.data.searchText,
       this.data.currentCategory
     );
-
-    // 更新显示的符号列表
     this.setData({
       showSymbols: filtered
     });
-
-    // 如果不保持分类，更新分类列表
     if (!keepCategory) {
       const categoryUpdate = SymbolUtils.updateCategories(
         filtered, 
@@ -189,20 +222,17 @@ Page({
       showDetail: true,
       currentSymbol: symbol
     });
-    // 设置导航栏标题为符号描述
     wx.setNavigationBarTitle({
       title: symbol.name
     });
   },
-
   // 隐藏符号详情
   hideSymbolDetail() {
     this.setData({
       showDetail: false,
       currentSymbol: null
     });
-    // 恢复默认标题
-    wx.setNavigationBarTitle({
+      wx.setNavigationBarTitle({
       title: '复制符'
     });
   },
@@ -243,5 +273,23 @@ Page({
       withShareTicket: true,
       menus: ['shareAppMessage', 'shareTimeline']
     })
+  },
+
+  // 处理分类滚动
+  onCategoryScroll(e) {
+    // 清除之前的定时器
+    if (this.data.scrollTimer) {
+      clearTimeout(this.data.scrollTimer);
+    }
+
+    // 设置滚动状态
+    this.setData({ isScrolling: true });
+
+    // 设置新的定时器，滚动停止后重置状态
+    const timer = setTimeout(() => {
+      this.setData({ isScrolling: false });
+    }, 150);  // 150ms 后认为滚动已停止
+
+    this.setData({ scrollTimer: timer });
   }
 });
