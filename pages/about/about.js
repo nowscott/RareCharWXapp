@@ -86,10 +86,10 @@ Page({
           versionText = '当前版本：体验版';
           break;
         case 'release':
-          versionText = `当前版本：v${accountInfo.miniProgram.version || '0.0.1'}`;
+          versionText = `当前版本：v${accountInfo.miniProgram.version}`;
           break;
         default:
-          versionText = '当前版本：v0.0.1';
+          versionText = '当前版本：电脑版';
       }
       
       this.setData({
