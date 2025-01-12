@@ -87,10 +87,8 @@ const SymbolUtils = {
       console.warn('Invalid symbols array:', symbols);
       return [];
     }
-
     const normalizedSearch = searchText?.trim().toLowerCase() || '';
     let result = [...symbols];  // 创建一个新的数组副本
-
     // 先进行分类过滤
     if (currentCategory && currentCategory !== '全部') {
       result = result.filter(symbol => 
@@ -98,7 +96,6 @@ const SymbolUtils = {
         symbol.category.includes(currentCategory)
       );
     }
-
     // 如果有搜索文本，进行搜索过滤和排序
     if (normalizedSearch) {
       result = result.filter(symbol => {
@@ -109,7 +106,6 @@ const SymbolUtils = {
         );
         const matchesSearchTerms = (symbol.searchTerms || [])
           .some(term => term.toLowerCase().includes(normalizedSearch));
-
         return matchesSymbol || matchesName || matchesCategory || matchesSearchTerms;
       });
 
@@ -117,11 +113,9 @@ const SymbolUtils = {
       result.sort((a, b) => {
         const aScore = this._getMatchScore(a, normalizedSearch);
         const bScore = this._getMatchScore(b, normalizedSearch);
-        
         if (aScore !== bScore) {
           return bScore - aScore;
         }
-        
         // 匹配度相同时，按 Unicode 码点排序
         return a.symbol.normalize('NFD').localeCompare(b.symbol.normalize('NFD'));
       });
@@ -137,7 +131,6 @@ const SymbolUtils = {
         );
       }
     }
-
     return result;
   },
 

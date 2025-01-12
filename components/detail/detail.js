@@ -3,7 +3,8 @@ Component({
     isCopying: false,
     unicodePoints: [],  // 存储所有码点
     promotionSlogan: '探索更多符号的奥秘',  // 添加推广标语
-    statusBarHeight: getApp().globalData.statusBarHeight || 0  // 从全局获取状态栏高度
+    statusBarHeight: getApp().globalData.statusBarHeight || 0,  // 从全局获取状态栏高度
+    theme: 'light'  // 添加主题状态
   },
 
   properties: {
@@ -73,6 +74,25 @@ Component({
           });
         }
       });
+    }
+  },
+
+  lifetimes: {
+    attached() {
+      // 监听系统主题变化
+      wx.onThemeChange((result) => {
+        this.setData({
+          theme: result.theme
+        });
+      });
+      
+      // 获取当前主题
+      try {
+        const { theme = 'light' } = wx.getAppBaseInfo();
+        this.setData({ theme });
+      } catch (e) {
+        console.error('获取主题信息失败:', e);
+      }
     }
   }
 }); 
