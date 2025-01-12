@@ -16,7 +16,7 @@
       </view>
       <view class="promotion-area">
         <view class="promotion-slogan">{{promotionSlogan}}</view>
-        <image class="qr-code" src="../../images/detail/{{theme === 'dark' ? 'rarechar_dark.png' : 'rarechar.png'}}" mode="aspectFit"></image>
+        <image class="qr-code" src="https://symboldata.oss-cn-shanghai.aliyuncs.com/{{theme === 'dark' ? 'rarechar_dark.png' : 'rarechar.png'}}" mode="aspectFit"></image>
       </view>
     </view>
   </view>

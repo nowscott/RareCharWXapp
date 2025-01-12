@@ -173,9 +173,7 @@ const SymbolUtils = {
     return sortedCategories;
   },
 
-  /**
-   * 获取分类统计（合并了原 getCategories 和 updateCategories 的部分逻辑）
-   */
+  //获取分类统计
   getCategoryStats(symbols) {
     // 统计每个分类的符号数量
     const categoryCount = {};
@@ -184,7 +182,6 @@ const SymbolUtils = {
         categoryCount[category] = (categoryCount[category] || 0) + 1;
       });
     });
-
     // 转换为数组并按数量降序排序
     return Object.entries(categoryCount)
       .sort(([, a], [, b]) => b - a)
@@ -193,17 +190,13 @@ const SymbolUtils = {
         count
       }));
   },
-
-  /**
-   * 更新分类列表（使用优化后的 getCategoryStats）
-   */
+  //更新分类列表
   updateCategories(symbols, searchText) {
     const categoryStats = this.getCategoryStats(symbols);
     return {
       showCategories: ['全部', ...categoryStats.map(stat => stat.category)]
     };
   },
-
   /**
    * 获取统计数据
    * @param {Array} symbols 符号数组
@@ -217,13 +210,11 @@ const SymbolUtils = {
         categoryCount[category] = (categoryCount[category] || 0) + 1;
       });
     });
-
-    // 转换为数组并排序
+    // 转换为数组并排序，取前三
     const sortedCategories = Object.entries(categoryCount)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 3);
-
-    // 构建返回结果
+    // 返回总数和前三分类
     return {
       total: symbols.length,
       topCategories: sortedCategories.map(([category, count]) => ({
@@ -231,6 +222,23 @@ const SymbolUtils = {
         count
       }))
     };
+  },
+
+  /**
+   * 检查符号是否在禁用区间内
+   * @param {string} symbol 要检查的符号
+   * @param {Array} ranges 禁用区间数组
+   * @returns {boolean} 是否在禁用区间内
+   */
+  isSymbolInDisabledRanges(symbol, ranges) {
+    if (!ranges || !ranges.length) return false;
+    // 获取符号的 unicode 值
+    const code = symbol.codePointAt(0).toString(16).toUpperCase();
+    // 检查是否在任何禁用区间内
+    return ranges.some(range => {
+      const [start, end] = range.split('-');
+      return code >= start && code <= end;
+    });
   },
 
   /**
@@ -246,9 +254,17 @@ const SymbolUtils = {
           fail: reject
         });
       });
-
       if (res.data && res.data.symbols) {
-        return this.getStats(res.data.symbols);
+        // 获取系统类型
+        const system = getApp().globalData.system;
+        // 获取系统禁用区间
+        const disabledRanges = (res.data.systemRanges || {})[system] || [];
+        // 过滤掉系统不支持的符号
+        const filteredSymbols = res.data.symbols.filter(symbol => 
+          !this.isSymbolInDisabledRanges(symbol.symbol, disabledRanges)
+        );
+        
+        return this.getStats(filteredSymbols);
       }
       throw new Error('Invalid data format');
     } catch (err) {
@@ -269,7 +285,6 @@ const SymbolUtils = {
     if (category === currentCategory) {
       return null;
     }
-
     // 立即返回分类切换
     return {
       currentCategory: category,  // 立即更新分类
@@ -284,6 +299,68 @@ const SymbolUtils = {
         '--index': index
       }))
     };
+  },
+
+  /**
+   * 处理初始数据加载
+   * @param {string} system 系统类型
+   * @returns {Object|null} 处理后的数据
+   */
+  handleInitialData(system) {
+    const symbolData = wx.getStorageSync('symbols_data');
+    if (symbolData && symbolData.symbols) {
+      const disabledRanges = (symbolData.systemRanges || {})[system] || [];
+      const filteredSymbols = symbolData.symbols.filter(symbol => 
+        !this.isSymbolInDisabledRanges(symbol.symbol, disabledRanges)
+      );
+      return {
+        ...symbolData,
+        symbols: filteredSymbols
+      };
+    }
+    return null;
+  },
+
+  /**
+   * 处理数据并返回初始化状态
+   * @param {Object} data 原始数据
+   * @returns {Object} 处理后的状态
+   */
+  processInitialData(data) {
+    const symbols = data.symbols;
+    const categoryStats = this.getCategoryStats(symbols);
+    const categories = ['全部', ...categoryStats.map(stat => stat.category)];
+    const shuffledSymbols = this.shuffle([...symbols]);
+    
+    return {
+      allSymbols: symbols,
+      showSymbols: shuffledSymbols,
+      categories,
+      showCategories: categories,
+      isLoading: false
+    };
+  },
+
+  /**
+   * 从服务器获取数据
+   * @param {Object} options 配置项
+   * @returns {Promise}
+   */
+  fetchData(options = {}) {
+    const { onSuccess, onError } = options;
+    
+    wx.request({
+      url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json',
+      success: (res) => {
+        if(res.data && res.data.symbols) {
+          onSuccess?.(res.data);
+        }
+      },
+      fail: (err) => {
+        console.error('获取数据失败:', err);
+        onError?.(err);
+      }
+    });
   }
 };
 
