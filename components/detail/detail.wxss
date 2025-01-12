@@ -55,7 +55,7 @@
 
 .detail-name {
   font-size: 32rpx;
-  color: #333;
+  color: var(--color-text-primary);
   margin-bottom: 16rpx;
   line-height: 1.4;
 }
@@ -138,8 +138,8 @@
 
 .detail-category {
   font-size: 24rpx;
-  color: #666;
-  background: #f6f6f6;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-primary);
   padding: 4rpx 12rpx;
   border-radius: 20rpx;
   display: inline-block;

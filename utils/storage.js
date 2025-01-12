@@ -91,8 +91,8 @@ const StorageManager = {
         variant: 'normal'
       },
       timeout: 5000,
-      success: (res) => {
-        console.log('字体加载成功:', res);
+      success: () => {
+        console.log('字体加载成功');
         this.setPageFontLoaded();
       },
       fail: (err) => {

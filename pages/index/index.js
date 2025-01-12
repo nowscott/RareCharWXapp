@@ -3,6 +3,20 @@ const app = getApp();
 const SymbolUtils = require('../../utils/utils.js');
 const StorageManager = require('../../utils/storage.js');
 
+// 添加一个检查符号是否在禁用区间的函数
+function isSymbolInDisabledRanges(symbol, ranges) {
+  if (!ranges || !ranges.length) return false;
+  
+  // 获取符号的 unicode 值
+  const code = symbol.codePointAt(0).toString(16).toUpperCase();
+  
+  // 检查是否在任何禁用区间内
+  return ranges.some(range => {
+    const [start, end] = range.split('-');
+    return code >= start && code <= end;
+  });
+}
+
 Page({
   data: {
     searchText: '',
@@ -20,12 +34,36 @@ Page({
     isLoading: true,
     app: getApp(),
     isScrolling: false,
-    scrollTimer: null
+    scrollTimer: null,
+    symbols: [],
+    filteredSymbols: []  // 添加经过系统筛选后的符号列表
   },
 
   onLoad() {
-    // 从API获取数据
-    this.fetchSymbolsData();
+    // 获取系统类型
+    const system = getApp().globalData.system;
+    
+    // 从缓存获取符号数据
+    const symbolData = wx.getStorageSync('symbols_data');
+    if (symbolData && symbolData.symbols) {
+      // 获取当前系统的禁用区间
+      const disabledRanges = (symbolData.systemRanges || {})[system] || [];
+      
+      // 过滤符号
+      const filteredSymbols = symbolData.symbols.filter(symbol => 
+        !isSymbolInDisabledRanges(symbol.symbol, disabledRanges)
+      );
+
+      // 处理数据
+      this.processData({
+        ...symbolData,
+        symbols: filteredSymbols  // 使用过滤后的符号列表
+      });
+    } else {
+      // 如果缓存中没有数据，从服务器获取
+      this.fetchSymbolsData();
+    }
+
     // 监听数据更新事件
     this.onDataUpdate = () => {
       this.fetchSymbolsData();

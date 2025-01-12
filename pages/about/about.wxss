@@ -35,14 +35,7 @@
   flex: 1;
   background: var(--color-bg-primary);
   padding: 8rpx 24rpx;
-  overflow-y: auto;
   box-sizing: border-box;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* 隐藏滚动条 */
-.container::-webkit-scrollbar {
-  display: none;
 }
 
 /* 统计框样式 */
@@ -94,8 +87,7 @@
   font-weight: bold;
   margin-bottom: 16rpx;
   display: block;
-  color: var(--color-text-tertiary);
-  opacity: 0.8;
+  color: var(--color-text-secondary);
 }
 
 .section-content {
@@ -147,7 +139,7 @@
 
 .contact-text {
   font-size: 20rpx;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-primary);
 }
 
 .contact-icon {
@@ -164,7 +156,7 @@
 
 .footer-text {
   font-size: 24rpx;
-  color: var(--color-text-quaternary);
+  color: var(--color-text-tertiary);
   display: block;
   margin-bottom: 8rpx;
 }
@@ -204,13 +196,13 @@
 
 .label {
   font-size: 24rpx;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-primary);
   flex-shrink: 0;
 }
 
 .value {
   font-size: 24rpx;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
 }

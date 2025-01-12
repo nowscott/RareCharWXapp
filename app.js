@@ -9,6 +9,13 @@ App({
     const titleTop = menuButtonInfo.top;
     const titleHeight = menuButtonInfo.height;
     const titleSize = menuButtonInfo.height - 4;
+    // 判断系统
+    const deviceInfo = wx.getDeviceInfo();
+    const system = deviceInfo.system.toLowerCase().includes('android') ? 'android'
+      : deviceInfo.system.toLowerCase().includes('ios') ? 'ios'
+      : deviceInfo.system.toLowerCase().includes('windows') ? 'win'
+      : deviceInfo.system.toLowerCase().includes('mac') ? 'mac' : 'other';
+    console.log('系统:', system);
 
     // 先初始化 globalData
     this.globalData = {
@@ -16,7 +23,8 @@ App({
       titleHeight: titleHeight + 'px',
       titleSize: titleSize + 'px',
       fontLoaded: false,
-      eventBus: EventBus
+      eventBus: EventBus,
+      system
     };
 
     // 初始化字体
