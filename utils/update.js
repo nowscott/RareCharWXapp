@@ -8,36 +8,31 @@ const UpdateManager = {
     const date = new Date(timestamp);
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
   },
-
   // 检查是否可以更新
   checkCanUpdate(lastUpdateTime) {
     const now = Date.now();
     return !lastUpdateTime || (now - lastUpdateTime) >= UPDATE_INTERVAL;
   },
-
   // 获取下次可更新时间
   getNextUpdateTime(lastUpdateTime) {
     return new Date(lastUpdateTime + UPDATE_INTERVAL);
   },
-
   // 更新数据
   updateData(callbacks = {}, hasUpdate = false) {
     const {onStart, onSuccess, onFail, onComplete} = callbacks;
-    
     const timestamp = wx.getStorageSync('symbols_timestamp');
     if (!hasUpdate && !this.checkCanUpdate(timestamp)) {
       const nextUpdate = this.getNextUpdateTime(timestamp);
       wx.showToast({
         title: `${this.formatTime(nextUpdate)}后可更新`,
         icon: 'none',
-        duration: 2000
+        duration: 1000
       });
       return;
     }
 
     onStart?.();
     StorageManager.clearCache();
-
     wx.request({
       url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json',
       success: (res) => {
