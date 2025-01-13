@@ -120,7 +120,7 @@
   align-items: center;
   justify-content: space-between;
   box-shadow: var(--shadow);
-  min-height: 180rpx;
+  min-height: 144rpx;
   animation: slideDown 0.3s ease-out forwards;
   opacity: 0;
   will-change: transform, opacity;
@@ -161,6 +161,7 @@
   text-align: center;
   background: var(--color-bg-primary);
   padding: 8rpx 16rpx;
+  margin-top: 8rpx;
   border-radius: 12rpx;
   width: auto;
 }
