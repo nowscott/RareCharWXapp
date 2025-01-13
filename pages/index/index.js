@@ -31,7 +31,6 @@ Page({
     } else {
       this.fetchSymbolsData();
     }
-
     // 监听数据更新事件
     this.onDataUpdate = () => this.fetchSymbolsData();
     getApp().globalData.eventBus.on('dataUpdated', this.onDataUpdate);
@@ -46,13 +45,11 @@ Page({
   fetchSymbolsData() {
     const system = getApp().globalData.system;
     const cachedData = StorageManager.getData();
-    
     if (cachedData) {
       const processedData = SymbolUtils.handleInitialData(system);
       this.setData(SymbolUtils.processInitialData(processedData));
       return;
     }
-
     SymbolUtils.fetchData({
       onSuccess: (data) => {
         StorageManager.saveData(data);
@@ -77,7 +74,6 @@ Page({
       '全部'
     );
     const categoryUpdate = SymbolUtils.updateCategories(filtered, searchText);
-    
     this.setData({
       searchText,
       currentCategory: '全部',
@@ -85,7 +81,6 @@ Page({
       showSymbols: filtered,
       ...categoryUpdate
     });
-
     // 滚动到顶部
     wx.createSelectorQuery()
       .select('.category-scroll')
@@ -104,7 +99,6 @@ Page({
       this.data.searchText,
       this.data.currentCategory
     );
-
     if (updateData) {
       // 立即更新分类和显示加载状态
       this.setData({
@@ -112,7 +106,6 @@ Page({
         scrollTop: 0,
         isLoading: true
       });
-
       // 使用 nextTick 延迟更新符号列表
       wx.nextTick(() => {
         this.setData({
