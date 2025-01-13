@@ -120,7 +120,7 @@
   align-items: center;
   justify-content: space-between;
   box-shadow: var(--shadow);
-  min-height: 144rpx;
+  min-height: 160rpx;
   animation: slideDown 0.3s ease-out forwards;
   opacity: 0;
   will-change: transform, opacity;
