@@ -74,62 +74,65 @@ Page({
   },
 
   onLoad() {
+    this.initVersionInfo();
+    this.initUpdateInfo();
+    this.checkUpdate();
+  },
+
+  // 初始化版本信息
+  initVersionInfo() {
     try {
-      const accountInfo = wx.getAccountInfoSync();
-      let versionText = '';
-      // 根据环境显示不同的版本号格式
-      switch (accountInfo.miniProgram.envVersion) {
-        case 'develop':
-          versionText = '当前版本：开发版';
-          break;
-        case 'trial':
-          versionText = '当前版本：体验版';
-          break;
-        case 'release':
-          versionText = `当前版本：v${accountInfo.miniProgram.version}`;
-          break;
-        default:
-          versionText = '当前版本：电脑版';
-      }
-      
+      const { miniProgram } = wx.getAccountInfoSync();
+      const versionMap = {
+        develop: '开发版',
+        trial: '体验版',
+        release: miniProgram.version ? `v${miniProgram.version}` : '正式版'
+      };
       this.setData({
-        'texts.version': `${versionText} `
+        'texts.version': `当前版本：${versionMap[miniProgram.envVersion] || 'v0.0.1'} `
       });
     } catch (e) {
       console.error('获取版本信息失败:', e);
     }
+  },
 
-    this.fetchStatsData();
+  // 初始化更新信息
+  initUpdateInfo() {
     const timestamp = wx.getStorageSync('symbols_timestamp');
-    const version = StorageManager.getCurrentVersion();
     if (timestamp) {
       this.setData({
         'stats.updateTime': UpdateManager.formatTime(timestamp),
-        'stats.version': version || this.data.DEFAULT_VERSION,
-        'stats.canUpdate': UpdateManager.checkCanUpdate(timestamp)
+        'stats.version': StorageManager.getCurrentVersion() || this.data.DEFAULT_VERSION
       });
     }
-    this.checkUpdate();
+    this.fetchStatsData();
   },
 
+  // 更新数据
   updateData() {
+    const timestamp = wx.getStorageSync('symbols_timestamp');
+    if (!this.data.stats.hasUpdate && !UpdateManager.checkCanUpdate(timestamp)) {
+      const waitMinutes = Math.ceil((StorageManager.CACHE_TIME.CHECK_UPDATE - (Date.now() - timestamp)) / 60000);
+      wx.showToast({
+        title: `请等待 ${waitMinutes} 分钟后再更新`,
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
+
     UpdateManager.updateData({
-      onStart: () => {
-        this.setData({ 'stats.isUpdating': true });
-      },
+      onStart: () => this.setData({ 'stats.isUpdating': true }),
       onSuccess: (data) => {
         this.fetchStatsData();
-        const now = Date.now();
         this.setData({
-          'stats.updateTime': UpdateManager.formatTime(now),
+          'stats.updateTime': UpdateManager.formatTime(Date.now()),
           'stats.version': data.version || this.data.DEFAULT_VERSION,
-          'stats.canUpdate': false
+          'stats.hasUpdate': false
         });
       },
-      onComplete: () => {
-        this.setData({ 'stats.isUpdating': false });
-      }
-    });
+      onComplete: () => this.setData({ 'stats.isUpdating': false })
+    }, this.data.stats.hasUpdate);
   },
 
   async fetchStatsData() {
@@ -150,7 +153,6 @@ Page({
   copyContact(e) {
     const type = e.currentTarget.dataset.type;
     const contact = this.data.contact.items.find(item => item.type === type);
-    
     wx.setClipboardData({
       data: contact.value,
       success: () => {
@@ -183,8 +185,8 @@ Page({
       onNewVersion: (newVersion) => {
         this.setData({ 'stats.hasUpdate': true });
         wx.showModal({
-          title: '发现新版本',
-          content: `发现新版本(${newVersion})，是否更新？`,
+          title: '发现数据更新',
+          content: `发现新的数据版本:(v${newVersion})，是否立即更新？`,
           success: (res) => {
             if (res.confirm) {
               this.updateData();

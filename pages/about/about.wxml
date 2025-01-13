@@ -20,7 +20,11 @@
               <text class="value">{{stats.updateTime || '暂无更新时间'}}</text>
             </view>
           </view>
-          <button class="update-btn {{stats.isUpdating ? 'updating' : ''}} {{stats.hasUpdate ? 'has-update' : ''}}" bindtap="updateData" disabled="{{stats.isUpdating || !stats.canUpdate}}">
+          <button 
+            class="update-btn {{stats.isUpdating ? 'updating' : ''}} {{stats.hasUpdate ? 'has-update' : ''}}" 
+            bindtap="updateData" 
+            disabled="{{stats.isUpdating}}"
+          >
             {{stats.isUpdating ? '更新中' : '更新数据'}}
           </button>
         </view>

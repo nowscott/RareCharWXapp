@@ -54,21 +54,21 @@ const SymbolUtils = {
     let score = 0;
     const normalizedSearch = searchText.toLowerCase();
 
-    // 1. 符号本身匹配（最高优先级）
+    // 符号本身匹配（最高优先级）
     if (symbol.symbol.toLowerCase() === normalizedSearch) {
       score += 100;  // 完全匹配
     } else if (symbol.symbol.toLowerCase().includes(normalizedSearch)) {
       score += 80;   // 部分匹配
     }
 
-    // 2. 范畴（分类）匹配
+    // 范畴（分类）匹配
     if (symbol.category.some(cat => cat.toLowerCase() === normalizedSearch)) {
       score += 50;   // 完全匹配
     } else if (symbol.category.some(cat => cat.toLowerCase().includes(normalizedSearch))) {
       score += 30;   // 部分匹配
     }
 
-    // 3. 搜索词匹配
+    // 搜索词匹配
     if (symbol.searchTerms?.some(term => term.toLowerCase() === normalizedSearch)) {
       score += 60;   // 完全匹配
     } else if (symbol.searchTerms?.some(term => term.toLowerCase().includes(normalizedSearch))) {
@@ -116,8 +116,8 @@ const SymbolUtils = {
         if (aScore !== bScore) {
           return bScore - aScore;
         }
-        // 匹配度相同时，按 Unicode 码点排序
-        return a.symbol.normalize('NFD').localeCompare(b.symbol.normalize('NFD'));
+        // 匹配度相同时，按 Unicode 码点排序，使用 NFC 格式
+        return a.symbol.normalize('NFC').localeCompare(b.symbol.normalize('NFC'));
       });
     } else {
       // 无搜索文本时的排序逻辑
@@ -125,10 +125,12 @@ const SymbolUtils = {
         // 全部分类下随机排序
         result = this.shuffle(result);
       } else {
-        // 其他分类下按 Unicode 码点排序
-        result.sort((a, b) => 
-          a.symbol.normalize('NFD').localeCompare(b.symbol.normalize('NFD'))
-        );
+        // 其他分类下按 Unicode 码点值排序
+        result.sort((a, b) => {
+          const aCode = a.symbol.codePointAt(0);
+          const bCode = b.symbol.codePointAt(0);
+          return aCode - bCode;
+        });
       }
     }
     return result;
