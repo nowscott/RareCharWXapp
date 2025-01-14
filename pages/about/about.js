@@ -21,7 +21,7 @@ Page({
         ]
       },
       footer: {
-        icp: "辽ICP备xxxxxxxx号",
+        icp: "辽ICP备2024046252号-2X",
         copyright: "© 2025 - NowScott"
       },
       version: ''
@@ -149,7 +149,7 @@ Page({
       });
     }
   },
-  
+
   copyContact(e) {
     const type = e.currentTarget.dataset.type;
     const contact = this.data.contact.items.find(item => item.type === type);
@@ -163,7 +163,7 @@ Page({
       }
     });
   },
-  
+
   onShareAppMessage() {
     return {
       title: '复制符 - 探索特殊符号的宝库',
@@ -171,7 +171,7 @@ Page({
       imageUrl: '/images/share.png'
     }
   },
-  
+
   onShareTimeline() {
     return {
       title: '复制符 - 特殊符号检索工具',
