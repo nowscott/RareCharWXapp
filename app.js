@@ -62,7 +62,6 @@ App({
   // 检查小程序更新
   checkForUpdate() {
     const updateManager = wx.getUpdateManager();
-
     updateManager.onCheckForUpdate((res) => {
       if (res.hasUpdate) {
         wx.showToast({
@@ -72,7 +71,6 @@ App({
         });
       }
     });
-
     updateManager.onUpdateReady(() => {
       wx.showModal({
         title: '更新提示',
@@ -84,7 +82,6 @@ App({
         }
       });
     });
-
     updateManager.onUpdateFailed(() => {
       wx.showModal({
         title: '更新提示',

@@ -1,5 +1,4 @@
 const StorageManager = require('./storage.js');
-
 const UPDATE_INTERVAL = 60 * 60 * 1000; // 1小时更新间隔
 
 const UpdateManager = {
