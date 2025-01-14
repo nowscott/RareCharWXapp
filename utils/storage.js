@@ -165,7 +165,7 @@ const StorageManager = {
       // 获取远程数据版本
       const res = await new Promise((resolve, reject) => {
         wx.request({
-          url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json',
+          url: getApp().globalData.dataUrl,
           success: resolve,
           fail: reject
         });

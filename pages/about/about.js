@@ -32,6 +32,7 @@ Page({
     statusBarHeight: app.globalData.statusBarHeight,
     titleHeight: app.globalData.titleHeight,
     titleSize: app.globalData.titleSize,
+    miniProgramInfo: app.globalData.miniProgramInfo,
 
     // 数据状态
     stats: {
@@ -68,7 +69,6 @@ Page({
         }
       ]
     },
-
     app: getApp(),
     fontLoaded: false
   },
@@ -81,19 +81,14 @@ Page({
 
   // 初始化版本信息
   initVersionInfo() {
-    try {
-      const { miniProgram } = wx.getAccountInfoSync();
-      const versionMap = {
-        develop: '开发版',
-        trial: '体验版',
-        release: miniProgram.version ? `v${miniProgram.version}` : '正式版'
-      };
-      this.setData({
-        'texts.version': `当前版本：${versionMap[miniProgram.envVersion] || 'v0.0.1'} `
-      });
-    } catch (e) {
-      console.error('获取版本信息失败:', e);
-    }
+    const versionMap = {
+      develop: '开发版',
+      trial: '体验版',
+      release: this.data.miniProgramInfo.version ? `v${this.data.miniProgramInfo.version}` : '正式版'
+    };
+    this.setData({
+      'texts.version': `当前版本：${versionMap[this.data.miniProgramInfo.envVersion] || 'v0.0.1'} `
+    });
   },
 
   // 初始化更新信息
@@ -194,6 +189,6 @@ Page({
           }
         });
       }
-    });
+    }, getApp().globalData.dataUrl);
   },
 }); 

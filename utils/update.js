@@ -17,31 +17,42 @@ const UpdateManager = {
     return new Date(lastUpdateTime + UPDATE_INTERVAL);
   },
   // 更新数据
-  updateData(callbacks = {}, hasUpdate = false) {
+  updateData(callbacks = {}, hasUpdate = false, dataUrl) {
     const {onStart, onSuccess, onFail, onComplete} = callbacks;
     const timestamp = wx.getStorageSync('symbols_timestamp');
     if (!hasUpdate && !this.checkCanUpdate(timestamp)) {
       const nextUpdate = this.getNextUpdateTime(timestamp);
-      wx.showToast({
-        title: `${this.formatTime(nextUpdate)}后可更新`,
-        icon: 'none',
-        duration: 1000
-      });
+      if (hasUpdate === undefined) {
+        wx.showToast({
+          title: `${this.formatTime(nextUpdate)}后可更新`,
+          icon: 'none',
+          duration: 1000
+        });
+      }
       return;
     }
     onStart?.();
     StorageManager.clearCache();
     wx.request({
-      url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json',
+      url: dataUrl || getApp().globalData.dataUrl,
       success: (res) => {
         if (res.data && res.data.symbols) {
+          // 检查版本是否真的更新了（忽略 beta 后缀）
+          const currentVersion = StorageManager.getCurrentVersion();
+          const serverVersion = res.data.version;
+          const cleanCurrentVersion = currentVersion?.replace('-beta', '');
+          const cleanServerVersion = serverVersion?.replace('-beta', '');
+          const hasNewVersion = cleanCurrentVersion !== cleanServerVersion;
           StorageManager.saveData(res.data);
           onSuccess?.(res.data);
           getApp().globalData.eventBus.emit('dataUpdated');
-          wx.showToast({
-            title: '数据已更新',
-            icon: 'success'
-          });
+          // 只在有新版本时显示更新提示
+          if (hasNewVersion) {
+            wx.showToast({
+              title: '数据已更新',
+              icon: 'success'
+            });
+          }
         }
       },
       fail: (err) => {
@@ -58,17 +69,21 @@ const UpdateManager = {
     });
   },
   // 检查更新
-  checkUpdate({ onNewVersion } = {}) {
+  checkUpdate({ onNewVersion } = {}, dataUrl) {
     console.log('正在检查数据更新...');
     wx.request({
-      url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json',
+      url: dataUrl || getApp().globalData.dataUrl,
       success: (res) => {
         if (res.data && res.data.version) {
           const currentVersion = StorageManager.getCurrentVersion();
-          console.log('当前版本:', currentVersion, '服务器版本:', res.data.version);
-          if (currentVersion !== res.data.version) {
+          const serverVersion = res.data.version;
+          // 去掉 beta 后缀后比较版本号
+          const cleanCurrentVersion = currentVersion?.replace('-beta', '');
+          const cleanServerVersion = serverVersion?.replace('-beta', '');
+          console.log('当前版本:', currentVersion, '服务器版本:', serverVersion);
+          if (cleanCurrentVersion !== cleanServerVersion) {
             console.log('发现新版本！');
-            onNewVersion?.(res.data.version);
+            onNewVersion?.(serverVersion);
           } else {
             console.log('已是最新版本');
           }

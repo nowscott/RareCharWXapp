@@ -251,7 +251,7 @@ const SymbolUtils = {
     try {
       const res = await new Promise((resolve, reject) => {
         wx.request({
-          url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json',
+          url: getApp().globalData.dataUrl,  // 使用全局配置的URL
           success: resolve,
           fail: reject
         });
@@ -352,7 +352,7 @@ const SymbolUtils = {
     const { onSuccess, onError } = options;
     
     wx.request({
-      url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json',
+      url: getApp().globalData.dataUrl,  // 使用全局配置的URL
       success: (res) => {
         if(res.data && res.data.symbols) {
           onSuccess?.(res.data);

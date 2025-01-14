@@ -1,9 +1,13 @@
 // app.js
 const EventBus = require('./utils/eventBus.js');
 const StorageManager = require('./utils/storage.js');
+const UpdateManager = require('./utils/update.js');
 
 App({
   onLaunch() {
+    // 定义数据获取链接
+    const dataUrl = 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json';
+    const betaDataUrl = 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data-beta.json';
     // 获取胶囊按钮位置信息
     const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
     const titleTop = menuButtonInfo.top;
@@ -16,6 +20,14 @@ App({
       : deviceInfo.system.toLowerCase().includes('windows') ? 'win'
       : deviceInfo.system.toLowerCase().includes('mac') ? 'mac' : 'other';
     console.log('系统:', system);
+    // 获取小程序版本信息
+    const miniProgramInfo = wx.getAccountInfoSync().miniProgram;
+    console.log('小程序版本信息:', miniProgramInfo);
+
+    // 根据版本选择数据URL
+    const currentDataUrl = miniProgramInfo.envVersion === 'release' ? dataUrl : betaDataUrl;
+    console.log('当前使用的数据URL:', currentDataUrl);
+
     // 先初始化 globalData
     this.globalData = {
       statusBarHeight: titleTop + 'px',
@@ -23,7 +35,9 @@ App({
       titleSize: titleSize + 'px',
       fontLoaded: false,
       eventBus: EventBus,
-      system
+      system: system,
+      miniProgramInfo: miniProgramInfo,
+      dataUrl: currentDataUrl
     };
     // 初始化字体
     StorageManager.initFont({
@@ -31,34 +45,20 @@ App({
         this.globalData.fontLoaded = true;
       }
     });
-    // 检查数据更新
-    this.checkDataUpdate();
+    // 替换原来的 checkDataUpdate() 调用
+    UpdateManager.updateData({
+      onSuccess: (data, hasNewVersion) => {
+        if (hasNewVersion) {
+          console.log('启动时数据已自动更新');
+        }
+      },
+      onFail: (err) => {
+        console.error('启动时自动更新数据失败:', err);
+      }
+    }, false, currentDataUrl, EventBus);
     // 检查小程序更新
     this.checkForUpdate();
   },
-
-  // 检查数据更新
-  checkDataUpdate() {
-    const timestamp = wx.getStorageSync('symbols_timestamp');
-    const now = Date.now();
-    // 如果数据超过1小时，自动更新
-    if (!timestamp || (now - timestamp >= StorageManager.CACHE_TIME.CHECK_UPDATE)) {
-      wx.request({
-        url: 'https://symboldata.oss-cn-shanghai.aliyuncs.com/data.json',
-        success: (res) => {
-          if (res.data && res.data.symbols) {
-            StorageManager.saveData(res.data);
-            this.globalData.eventBus.emit('dataUpdated');
-            console.log('数据已自动更新');
-          }
-        },
-        fail: (err) => {
-          console.error('自动更新数据失败:', err);
-        }
-      });
-    }
-  },
-
   // 检查小程序更新
   checkForUpdate() {
     const updateManager = wx.getUpdateManager();
