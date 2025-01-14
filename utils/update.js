@@ -30,7 +30,6 @@ const UpdateManager = {
       });
       return;
     }
-
     onStart?.();
     StorageManager.clearCache();
     wx.request({
@@ -59,7 +58,6 @@ const UpdateManager = {
       }
     });
   },
-
   // 检查更新
   checkUpdate({ onNewVersion } = {}) {
     console.log('正在检查数据更新...');

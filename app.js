@@ -16,7 +16,6 @@ App({
       : deviceInfo.system.toLowerCase().includes('windows') ? 'win'
       : deviceInfo.system.toLowerCase().includes('mac') ? 'mac' : 'other';
     console.log('系统:', system);
-
     // 先初始化 globalData
     this.globalData = {
       statusBarHeight: titleTop + 'px',
@@ -26,17 +25,14 @@ App({
       eventBus: EventBus,
       system
     };
-
     // 初始化字体
     StorageManager.initFont({
       onSuccess: () => {
         this.globalData.fontLoaded = true;
       }
     });
-
     // 检查数据更新
     this.checkDataUpdate();
-    
     // 检查小程序更新
     this.checkForUpdate();
   },
@@ -45,7 +41,6 @@ App({
   checkDataUpdate() {
     const timestamp = wx.getStorageSync('symbols_timestamp');
     const now = Date.now();
-    
     // 如果数据超过1小时，自动更新
     if (!timestamp || (now - timestamp >= StorageManager.CACHE_TIME.CHECK_UPDATE)) {
       wx.request({
