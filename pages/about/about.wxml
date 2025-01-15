@@ -13,7 +13,7 @@
           <view class="update-details">
             <view class="version-line">
               <text class="label">数据版本：</text>
-              <text class="value">v{{stats.version || '暂无版本信息'}}</text>
+              <text class="value">v{{stats.versions.symbols || '暂无版本信息'}}</text>
               <text wx:if="{{stats.hasUpdate}}" class="update-badge">有新版本</text>
             </view>
             <view class="time-line">

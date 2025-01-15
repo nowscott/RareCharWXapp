@@ -12,8 +12,7 @@ const StorageManager = {
   CACHE_TIME: {
     SYMBOLS: 7 * 24 * 60 * 60 * 1000,  // 符号数据缓存7天
     PINYIN: 7 * 24 * 60 * 60 * 1000,   // 拼音映射缓存7天
-    FONT: 7 * 24 * 60 * 60 * 1000,     // 字体缓存7天
-    CHECK_UPDATE: 60 * 60 * 1000        // 检查更新间隔1小时
+    FONT: 7 * 24 * 60 * 60 * 1000      // 字体缓存7天
   },
 
   // 字体相关配置
@@ -26,14 +25,20 @@ const StorageManager = {
   saveData(data, pinyinData) {
     try {
       // 保存符号数据
-      wx.setStorageSync(this.CACHE_KEYS.SYMBOLS, data);
-      wx.setStorageSync(this.CACHE_KEYS.TIMESTAMP, Date.now());
-      wx.setStorageSync(this.CACHE_KEYS.VERSION, data.version);
+      if (data?.symbols && data?.version) {
+        wx.setStorageSync(this.CACHE_KEYS.SYMBOLS, data);
+        wx.setStorageSync(this.CACHE_KEYS.TIMESTAMP, Date.now());
+        wx.setStorageSync(this.CACHE_KEYS.VERSION, data.version);
+      } else {
+        console.warn('Invalid symbols data:', data);
+      }
 
-      // 如果有拼音数据，也保存
-      if (pinyinData) {
+      // 保存拼音数据
+      if (pinyinData?.pinyinMap && pinyinData?.version) {
         wx.setStorageSync(this.CACHE_KEYS.PINYIN, pinyinData);
         wx.setStorageSync(this.CACHE_KEYS.PINYIN_VERSION, pinyinData.version);
+      } else {
+        console.warn('Invalid pinyin data:', pinyinData);
       }
     } catch (e) {
       console.error('缓存数据失败:', e);
@@ -45,12 +50,16 @@ const StorageManager = {
     try {
       const timestamp = wx.getStorageSync(this.CACHE_KEYS.TIMESTAMP);
       const now = Date.now();
-      
       if (timestamp && (now - timestamp < this.CACHE_TIME.SYMBOLS)) {
-        return {
-          symbols: wx.getStorageSync(this.CACHE_KEYS.SYMBOLS),
-          pinyin: wx.getStorageSync(this.CACHE_KEYS.PINYIN)
-        };
+        const symbolsData = wx.getStorageSync(this.CACHE_KEYS.SYMBOLS);
+        const pinyinData = wx.getStorageSync(this.CACHE_KEYS.PINYIN);
+        // 确保数据有效
+        if (symbolsData?.symbols) {
+          return {
+            symbols: symbolsData,
+            pinyin: pinyinData?.pinyinMap ? pinyinData : null
+          };
+        }
       }
       return null;
     } catch (e) {
@@ -160,57 +169,24 @@ const StorageManager = {
       onSuccess?.();
       return;
     }
-
     this.loadFontFace();
     this.updateFontCache();
     onSuccess?.();
   },
 
-  // 检查更新
-  async checkUpdate() {
-    try {
-      const lastCheck = wx.getStorageSync('last_update_check');
-      const now = Date.now();
-
-      // 如果距离上次检查时间不足间隔时间，则跳过
-      if (lastCheck && (now - lastCheck < this.CACHE_TIME.CHECK_UPDATE)) {
-        return null;
-      }
-
-      // 记录本次检查时间
-      wx.setStorageSync('last_update_check', now);
-
-      // 并行获取远程数据版本
-      const [symbolsRes, pinyinRes] = await Promise.all([
-        this._request(getApp().globalData.dataUrl),
-        this._request('https://symboldata.oss-cn-shanghai.aliyuncs.com/pinyin-map.json')
-      ]);
-
-      const currentVersions = this.getCurrentVersion();
-      
-      // 检查是否需要更新
-      if (symbolsRes.data?.version || pinyinRes.data?.version) {
-        const needUpdate = 
-          currentVersions.symbols !== symbolsRes.data?.version ||
-          currentVersions.pinyin !== pinyinRes.data?.version;
-        
-        return needUpdate ? {
-          symbols: symbolsRes.data?.version,
-          pinyin: pinyinRes.data?.version
-        } : null;
-      }
-      return null;
-    } catch (e) {
-      console.error('检查更新失败:', e);
-      return null;
-    }
-  },
-
   // 添加请求包装方法
   _request(url) {
+    const timestamp = Date.now();
+    const separator = url.includes('?') ? '&' : '?';
+    const urlWithTimestamp = `${url}${separator}t=${timestamp}`;
     return new Promise((resolve, reject) => {
       wx.request({
-        url,
+        url: urlWithTimestamp,
+        enableCache: false,
+        header: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
         success: resolve,
         fail: reject
       });

@@ -33,7 +33,6 @@ const SymbolUtils = {
    */
   removeDuplicates(symbols) {
     const seen = new Map();
-    
     return symbols.filter(symbol => {
       const key = symbol.symbol;
       if (seen.has(key)) {
@@ -47,47 +46,85 @@ const SymbolUtils = {
   },
 
   /**
-   * 计算符号与搜索文本的匹配度分数
+   * 获取文本的拼音
    * @private
    */
-  _getMatchScore(symbol, searchText) {
-    let score = 0;
+  _getPinyin(text, pinyinMap) {
+    if (!text || !pinyinMap) return '';
+    return Array.from(text)
+      .map(char => pinyinMap[char] || char)
+      .join('');
+  },
+
+  /**
+   * 检查是否为 unicode 搜索
+   * @private
+   */
+  _isUnicodeSearch(searchText) {
+    // 支持 u4e00 或 u20000 格式
+    return /^[uU][0-9a-fA-F]{4,5}$/.test(searchText);
+  },
+
+  /**
+   * 检查符号是否匹配 unicode 搜索
+   * @private
+   */
+  _matchUnicode(symbol, searchText) {
+    if (!symbol || !searchText) return false;
+    // 获取符号的 unicode 编码（支持4位和5位）
+    const code = symbol.codePointAt(0).toString(16).toLowerCase();
+    // 去掉 'u' 前缀并转换为小写
+    const searchCode = searchText.slice(1).toLowerCase();
+    return code === searchCode;
+  },
+
+  /**
+   * 检查文本是否包含搜索词（包括拼音匹配）
+   * @private
+   */
+  _textIncludes(text, searchText, pinyinMap) {
+    if (!text || !searchText) return false;
+    // 转换为小写进行比较
+    const normalizedText = text.toLowerCase();
     const normalizedSearch = searchText.toLowerCase();
+    // 直接文本匹配
+    if (normalizedText.includes(normalizedSearch)) return true;
+    // 拼音匹配
+    const textPinyin = this._getPinyin(text, pinyinMap);
+    return textPinyin.includes(normalizedSearch);
+  },
 
-    // 符号本身匹配（最高优先级）
-    if (symbol.symbol.toLowerCase() === normalizedSearch) {
-      score += 100;  // 完全匹配
-    } else if (symbol.symbol.toLowerCase().includes(normalizedSearch)) {
-      score += 80;   // 部分匹配
-    }
+  /**
+   * 缓存 Unicode 映射
+   * @private
+   */
+  _unicodeMap: null,
 
-    // 范畴（分类）匹配
-    if (symbol.category.some(cat => cat.toLowerCase() === normalizedSearch)) {
-      score += 50;   // 完全匹配
-    } else if (symbol.category.some(cat => cat.toLowerCase().includes(normalizedSearch))) {
-      score += 30;   // 部分匹配
-    }
-
-    // 搜索词匹配
-    if (symbol.searchTerms?.some(term => term.toLowerCase() === normalizedSearch)) {
-      score += 60;   // 完全匹配
-    } else if (symbol.searchTerms?.some(term => term.toLowerCase().includes(normalizedSearch))) {
-      score += 40;   // 部分匹配
-    }
-
-    return score;
+  /**
+   * 构建 Unicode 映射
+   * @private
+   */
+  _buildUnicodeMap(symbols) {
+    if (this._unicodeMap) return this._unicodeMap;
+    this._unicodeMap = new Map();
+    symbols.forEach(symbol => {
+      const code = symbol.symbol.codePointAt(0).toString(16).padStart(4, '0').toLowerCase();
+      this._unicodeMap.set(code, symbol);
+    });
+    return this._unicodeMap;
   },
 
   //搜索符号
-  searchSymbols(symbols, searchText, currentCategory) {
+  searchSymbols(symbols, searchText, currentCategory, pinyinMap) {
     // 确保输入参数都是有效的
     if (!Array.isArray(symbols) || !symbols.length) {
       console.warn('Invalid symbols array:', symbols);
       return [];
     }
+    // 初始化或更新 Unicode 映射
+    this._buildUnicodeMap(symbols);
     const normalizedSearch = searchText?.trim().toLowerCase() || '';
     let result = [...symbols];  // 创建一个新的数组副本
-
     // 先进行分类过滤
     if (currentCategory && currentCategory !== '全部') {
       result = result.filter(symbol => 
@@ -95,31 +132,50 @@ const SymbolUtils = {
         symbol.category.includes(currentCategory)
       );
     }
-
-    // 如果有搜索文本，进行搜索过滤和排序
+    // 如果有搜索文本，进行搜索过滤
     if (normalizedSearch) {
-      result = result.filter(symbol => {
-        const matchesSymbol = symbol.symbol.toLowerCase().includes(normalizedSearch);
-        const matchesName = symbol.name.toLowerCase().includes(normalizedSearch);
-        const matchesCategory = symbol.category.some(cat => 
-          cat.toLowerCase().includes(normalizedSearch)
-        );
-        const matchesSearchTerms = (symbol.searchTerms || [])
-          .some(term => term.toLowerCase().includes(normalizedSearch));
-        return matchesSymbol || matchesName || matchesCategory || matchesSearchTerms;
-      });
-
-      // 搜索时按匹配度排序
-      result.sort((a, b) => {
-        const aScore = this._getMatchScore(a, normalizedSearch);
-        const bScore = this._getMatchScore(b, normalizedSearch);
-        if (aScore !== bScore) {
-          return bScore - aScore;
+      // 检查是否为 unicode 搜索
+      const isUnicodeSearch = this._isUnicodeSearch(normalizedSearch);
+      console.log('搜索模式:', isUnicodeSearch ? 'Unicode' : '普通搜索');
+      if (isUnicodeSearch) {
+        // Unicode 搜索使用映射直接查找
+        const searchCode = normalizedSearch.slice(1).toLowerCase();
+        const matchedSymbol = this._unicodeMap.get(searchCode);
+        // 如果找到匹配的符号，还需要检查分类
+        if (matchedSymbol && currentCategory === '全部') {
+          result = [matchedSymbol];
+        } else if (matchedSymbol && 
+                  matchedSymbol.category.includes(currentCategory)) {
+          result = [matchedSymbol];
+        } else {
+          result = [];
         }
-        return a.symbol.normalize('NFC').localeCompare(b.symbol.normalize('NFC'));
-      });
+        console.log('Unicode 搜索结果:', {
+          searchCode,
+          matchedSymbol,
+          result
+        });
+      } else {
+        // 普通搜索逻辑
+        result = result.filter(symbol => (
+          this._textIncludes(symbol.symbol, normalizedSearch, pinyinMap) ||
+          this._textIncludes(symbol.name, normalizedSearch, pinyinMap)
+        ));
+      }
+
+      // 只在非 Unicode 搜索时进行排序
+      if (!isUnicodeSearch) {
+        result.sort((a, b) => {
+          const aScore = this._getMatchScore(a, normalizedSearch, pinyinMap);
+          const bScore = this._getMatchScore(b, normalizedSearch, pinyinMap);
+          if (aScore !== bScore) {
+            return bScore - aScore;
+          }
+          return a.symbol.codePointAt(0) - b.symbol.codePointAt(0);
+        });
+      }
     } else {
-      // 无搜索文本时的排序逻辑
+      // 无搜索文本时的排序逻辑保持不变
       if (currentCategory === '全部') {
         result = this.shuffle(result);
       } else {
@@ -130,13 +186,38 @@ const SymbolUtils = {
         });
       }
     }
-
     // 为每个结果添加唯一key和索引
     return result.map((symbol, index) => ({
       ...symbol,
       _key: Math.random().toString(36).slice(2),
       '--index': index
     }));
+  },
+
+  /**
+   * 计算符号与搜索文本的匹配度分数
+   * @private
+   */
+  _getMatchScore(symbol, searchText, pinyinMap) {
+    let score = 0;
+    const normalizedSearch = searchText.toLowerCase();
+    // Unicode 搜索时的得分
+    if (this._isUnicodeSearch(normalizedSearch) && this._matchUnicode(symbol.symbol, normalizedSearch)) {
+      return 200;  // Unicode 完全匹配最高分
+    }
+    // 符号本身匹配（最高优先级）
+    if (symbol.symbol.toLowerCase() === normalizedSearch) {
+      score += 100;  // 完全匹配
+    } else if (this._textIncludes(symbol.symbol, normalizedSearch, pinyinMap)) {
+      score += 80;   // 部分匹配
+    }
+    // 名称匹配
+    if (symbol.name.toLowerCase() === normalizedSearch) {
+      score += 60;   // 完全匹配
+    } else if (this._textIncludes(symbol.name, normalizedSearch, pinyinMap)) {
+      score += 40;   // 部分匹配
+    }
+    return score;
   },
 
   /**
@@ -268,7 +349,6 @@ const SymbolUtils = {
         const filteredSymbols = res.data.symbols.filter(symbol => 
           !this.isSymbolInDisabledRanges(symbol.symbol, disabledRanges)
         );
-        
         return this.getStats(filteredSymbols);
       }
       throw new Error('Invalid data format');
@@ -336,7 +416,6 @@ const SymbolUtils = {
     const categoryStats = this.getCategoryStats(symbols);
     const categories = ['全部', ...categoryStats.map(stat => stat.category)];
     const shuffledSymbols = this.shuffle([...symbols]);
-    
     return {
       allSymbols: symbols,
       showSymbols: shuffledSymbols,
@@ -353,7 +432,6 @@ const SymbolUtils = {
    */
   fetchData(options = {}) {
     const { onSuccess, onError } = options;
-    
     wx.request({
       url: getApp().globalData.dataUrl,  // 使用全局配置的URL
       success: (res) => {

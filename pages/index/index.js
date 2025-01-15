@@ -21,7 +21,7 @@ Page({
     isScrolling: false,
     scrollTimer: null
   },
-
+  
   onLoad() {
     const system = getApp().globalData.system;
     // 尝试加载缓存数据
@@ -77,10 +77,14 @@ Page({
 
     // 使用 nextTick 确保加载状态已更新
     wx.nextTick(() => {
+      // 获取拼音映射数据
+      const pinyinData = wx.getStorageSync('pinyin_map');
+      
       const filtered = SymbolUtils.searchSymbols(
         this.data.allSymbols,
         searchText,
-        '全部'
+        '全部',
+        pinyinData?.pinyinMap  // 传入拼音映射数据
       );
       
       const categoryUpdate = SymbolUtils.updateCategories(filtered, searchText);
@@ -115,6 +119,9 @@ Page({
       this.data.currentCategory
     );
     if (updateData) {
+      // 获取拼音映射数据
+      const pinyinData = wx.getStorageSync('pinyin_map');
+      
       // 立即更新分类和显示加载状态
       this.setData({
         currentCategory: updateData.currentCategory,
@@ -123,8 +130,15 @@ Page({
       });
       // 使用 nextTick 延迟更新符号列表
       wx.nextTick(() => {
+        const filtered = SymbolUtils.searchSymbols(
+          this.data.allSymbols,
+          this.data.searchText,
+          category,
+          pinyinData?.pinyinMap  // 传入拼音映射数据
+        );
+        
         this.setData({
-          showSymbols: updateData._pendingSymbols,
+          showSymbols: filtered,
           isLoading: false
         });
       });

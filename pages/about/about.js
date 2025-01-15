@@ -13,7 +13,7 @@ Page({
       guide: {
         title: "说明",
         steps: [
-          "🔍 在首页搜索框输入检索词，即可检索符号",
+          "🔍 在首页搜索框输入检索词，支持拼音检索",
           "👆 点击下方列表中的符号按钮查看详情页",
           "📋 点击右上角复制按钮即可复制符号",
           "💡 遇到问题可以点击下方邮箱反馈"
@@ -32,18 +32,19 @@ Page({
     titleHeight: app.globalData.titleHeight,
     titleSize: app.globalData.titleSize,
     miniProgramInfo: app.globalData.miniProgramInfo,
-
     // 数据状态
     stats: {
       total: 0,
       topCategories: [],
       updateTime: '',
       isUpdating: false,
-      version: '',
+      versions: {
+        symbols: '',
+        pinyin: ''
+      },
       hasUpdate: false,
       canUpdate: true
     },
-
     // 联系方式配置
     contact: {
       title: "联系",
@@ -93,10 +94,15 @@ Page({
   // 初始化更新信息
   initUpdateInfo() {
     const timestamp = wx.getStorageSync('symbols_timestamp');
+    const versions = StorageManager.getCurrentVersion() || {};
+    
     if (timestamp) {
       this.setData({
         'stats.updateTime': UpdateManager.formatTime(timestamp),
-        'stats.version': StorageManager.getCurrentVersion() || this.data.DEFAULT_VERSION
+        'stats.versions': {
+          symbols: versions.symbols || this.data.DEFAULT_VERSION,
+          pinyin: versions.pinyin || this.data.DEFAULT_VERSION
+        }
       });
     }
     this.fetchStatsData();
@@ -149,14 +155,14 @@ Page({
 
   async checkUpdate() {
     UpdateManager.checkUpdate({
-      onNewVersion: (newVersion) => {
+      onNewVersion: (versions) => {
         this.setData({ 
           'stats.hasUpdate': true,
-          'stats.version': newVersion
+          'stats.versions': versions
         });
         wx.showModal({
           title: '发现数据更新',
-          content: `发现新的数据版本:(v${newVersion})，是否立即更新？`,
+          content: `发现新的数据版本:\n符号数据: v${versions.symbols}\n拼音数据: v${versions.pinyin}\n是否立即更新？`,
           success: (res) => {
             if (res.confirm) {
               UpdateManager.updateData({
@@ -165,7 +171,10 @@ Page({
                   this.fetchStatsData();
                   this.setData({
                     'stats.updateTime': UpdateManager.formatTime(Date.now()),
-                    'stats.version': data.version || this.data.DEFAULT_VERSION,
+                    'stats.versions': {
+                      symbols: data.version,
+                      pinyin: wx.getStorageSync('pinyin_map')?.version || this.data.DEFAULT_VERSION
+                    },
                     'stats.hasUpdate': false
                   });
                 },
