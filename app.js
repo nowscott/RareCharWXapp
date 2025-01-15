@@ -42,17 +42,13 @@ App({
         this.globalData.fontLoaded = true;
       }
     });
-    // 替换原来的 checkDataUpdate() 调用
+
+    // 传入数据 URL
     UpdateManager.updateData({
-      onSuccess: (data, hasNewVersion) => {
-        if (hasNewVersion) {
-          console.log('启动时数据已自动更新');
-        }
-      },
-      onFail: (err) => {
-        console.error('启动时自动更新数据失败:', err);
+      onSuccess: () => {
+        console.log('数据更新成功');
       }
-    }, false, currentDataUrl, EventBus);
+    }, currentDataUrl);
     // 检查小程序更新
     this.checkForUpdate();
   },

@@ -1,10 +1,10 @@
 Component({
   data: {
     isCopying: false,
-    unicodePoints: [],  // 存储所有码点
-    promotionSlogan: '探索更多符号的奥秘',  // 添加推广标语
-    statusBarHeight: getApp().globalData.statusBarHeight || 0,  // 从全局获取状态栏高度
-    theme: 'light'  // 添加主题状态
+    unicodePoints: [],
+    promotionSlogan: '复制符 - 探索更多符号的奥秘',
+    statusBarHeight: getApp().globalData.statusBarHeight || 0, 
+    theme: 'light'
   },
 
   properties: {

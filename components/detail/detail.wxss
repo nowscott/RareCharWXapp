@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--color-overlay);
+  background: rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,6 +12,8 @@
   visibility: hidden;
   transition: all 0.3s;
   z-index: 999;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .symbol-detail.show {
@@ -23,12 +25,17 @@
   position: relative;
   width: 80%;
   background: var(--color-bg-secondary);
-  border-radius: 16rpx;
+  opacity: 0.95;
+  border-radius: 20rpx;
   padding: 24rpx 40rpx;
   transform: translateY(50rpx);
   transition: all 0.3s;
   display: flex;
   flex-direction: column;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
 }
 
 .symbol-detail.show .detail-card {
@@ -187,4 +194,15 @@
 .safe-area-bottom {
   height: 12rpx;
   flex-shrink: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .symbol-detail {
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .detail-card {
+    background: rgba(42, 42, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
 } 

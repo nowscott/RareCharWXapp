@@ -76,6 +76,7 @@ Page({
   onLoad() {
     this.initVersionInfo();
     this.initUpdateInfo();
+    this.fetchStatsData();
     this.checkUpdate();
   },
 
@@ -154,36 +155,18 @@ Page({
   },
 
   async checkUpdate() {
+    if (!app.globalData?.dataUrl) {
+      console.error('数据 URL 未初始化');
+      return;
+    }
+    
     UpdateManager.checkUpdate({
       onNewVersion: (versions) => {
         this.setData({ 
           'stats.hasUpdate': true,
           'stats.versions': versions
         });
-        wx.showModal({
-          title: '发现数据更新',
-          content: `发现新的数据版本:\n符号数据: v${versions.symbols}\n拼音数据: v${versions.pinyin}\n是否立即更新？`,
-          success: (res) => {
-            if (res.confirm) {
-              UpdateManager.updateData({
-                onStart: () => this.setData({ 'stats.isUpdating': true }),
-                onSuccess: (data) => {
-                  this.fetchStatsData();
-                  this.setData({
-                    'stats.updateTime': UpdateManager.formatTime(Date.now()),
-                    'stats.versions': {
-                      symbols: data.version,
-                      pinyin: wx.getStorageSync('pinyin_map')?.version || this.data.DEFAULT_VERSION
-                    },
-                    'stats.hasUpdate': false
-                  });
-                },
-                onComplete: () => this.setData({ 'stats.isUpdating': false })
-              }, true);
-            }
-          }
-        });
       }
-    });
+    }, app.globalData.dataUrl);
   },
 }); 

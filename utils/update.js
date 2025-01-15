@@ -57,7 +57,7 @@ const UpdateManager = {
   checkUpdate({ onNewVersion, onNoUpdate } = {}, dataUrl) {  // 统一的检查更新方法
     console.log('正在检查数据更新...');    
     Promise.all([
-      StorageManager._request(dataUrl || getApp().globalData.dataUrl),
+      StorageManager._request(dataUrl),
       StorageManager._request('https://symboldata.oss-cn-shanghai.aliyuncs.com/pinyin-map.json')
     ]).then(([symbolsRes, pinyinRes]) => {
       if (symbolsRes.data?.version && pinyinRes.data?.version) {

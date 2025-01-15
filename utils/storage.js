@@ -164,7 +164,6 @@ const StorageManager = {
   // 初始化字体
   initFont(callbacks = {}) {
     const { onSuccess, onFail } = callbacks;
-
     if (this.checkFontCache()) {
       onSuccess?.();
       return;
@@ -176,9 +175,15 @@ const StorageManager = {
 
   // 添加请求包装方法
   _request(url) {
+    if (!url) {
+      console.error('请求 URL 不能为空');
+      return Promise.reject(new Error('Invalid URL'));
+    }
+
     const timestamp = Date.now();
     const separator = url.includes('?') ? '&' : '?';
     const urlWithTimestamp = `${url}${separator}t=${timestamp}`;
+
     return new Promise((resolve, reject) => {
       wx.request({
         url: urlWithTimestamp,
