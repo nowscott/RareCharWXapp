@@ -23,11 +23,8 @@ App({
     // 获取小程序版本信息
     const miniProgramInfo = wx.getAccountInfoSync().miniProgram;
     console.log('小程序版本信息:', miniProgramInfo);
-
     // 根据版本选择数据URL
     const currentDataUrl = miniProgramInfo.envVersion === 'release' ? dataUrl : betaDataUrl;
-    console.log('当前使用的数据URL:', currentDataUrl);
-
     // 先初始化 globalData
     this.globalData = {
       statusBarHeight: titleTop + 'px',

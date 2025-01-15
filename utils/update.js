@@ -22,39 +22,41 @@ const UpdateManager = {
     
     // 先检查是否有新版本
     this.checkUpdate({
-      onNewVersion: (serverVersion) => {
+      onNewVersion: async (serverVersion) => {
         // 只有在有新版本时才执行更新
         onStart?.();
         StorageManager.clearCache();
         
-        wx.request({
-          url: dataUrl || getApp().globalData.dataUrl,
-          success: (res) => {
-            if (res.data && res.data.symbols) {
-              StorageManager.saveData(res.data);
-              onSuccess?.(res.data);
-              getApp().globalData.eventBus.emit('dataUpdated');
-              
-              wx.showToast({
-                title: '数据已更新',
-                icon: 'success'
-              });
-            }
-          },
-          fail: (err) => {
-            console.error('更新数据失败:', err);
-            onFail?.(err);
+        try {
+          // 并行请求数据和拼音映射
+          const [symbolsRes, pinyinRes] = await Promise.all([
+            this._request(dataUrl || getApp().globalData.dataUrl),
+            this._request('https://symboldata.oss-cn-shanghai.aliyuncs.com/pinyin-map.json')
+          ]);
+
+          if (symbolsRes.data?.symbols && pinyinRes.data?.pinyinMap) {
+            // 保存符号数据和拼音映射
+            StorageManager.saveData(symbolsRes.data, pinyinRes.data);
+            
+            onSuccess?.(symbolsRes.data);
+            getApp().globalData.eventBus.emit('dataUpdated');
+            
             wx.showToast({
-              title: '更新失败',
-              icon: 'error'
+              title: '数据已更新',
+              icon: 'success'
             });
-          },
-          complete: () => {
-            onComplete?.();
           }
-        });
+        } catch (err) {
+          console.error('更新数据失败:', err);
+          onFail?.(err);
+          wx.showToast({
+            title: '更新失败',
+            icon: 'error'
+          });
+        } finally {
+          onComplete?.();
+        }
       },
-      // 如果没有新版本，直接完成
       onNoUpdate: () => {
         if (hasUpdate === undefined) {
           const timestamp = wx.getStorageSync('symbols_timestamp');
@@ -69,34 +71,52 @@ const UpdateManager = {
       }
     }, dataUrl);
   },
+  // 添加请求包装方法
+  _request(url) {
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url,
+        success: resolve,
+        fail: reject
+      });
+    });
+  },
   // 检查更新
   checkUpdate({ onNewVersion, onNoUpdate } = {}, dataUrl) {
     console.log('正在检查数据更新...');
-    wx.request({
-      url: dataUrl || getApp().globalData.dataUrl,
-      success: (res) => {
-        if (res.data && res.data.version) {
-          const currentVersion = StorageManager.getCurrentVersion();
-          const serverVersion = res.data.version;
-          // 去掉 beta 后缀后比较版本号
-          const cleanCurrentVersion = currentVersion?.replace('-beta', '');
-          const cleanServerVersion = serverVersion?.replace('-beta', '');
-          console.log('当前版本:', currentVersion, '服务器版本:', serverVersion);
-          if (cleanCurrentVersion !== cleanServerVersion) {
-            console.log('发现新版本！');
-            onNewVersion?.(serverVersion);
-          } else {
-            console.log('已是最新版本');
-            onNoUpdate?.();
-          }
+    Promise.all([
+      this._request(dataUrl || getApp().globalData.dataUrl),
+      this._request('https://symboldata.oss-cn-shanghai.aliyuncs.com/pinyin-map.json')
+    ]).then(([symbolsRes, pinyinRes]) => {
+      if (symbolsRes.data?.version && pinyinRes.data?.version) {
+        const currentVersions = StorageManager.getCurrentVersion() || {};
+        const currentSymbolsVersion = currentVersions.symbols;
+        const currentPinyinVersion = currentVersions.pinyin;
+        
+        const serverSymbolsVersion = symbolsRes.data.version;
+        const serverPinyinVersion = pinyinRes.data.version;
+        
+        // 去掉 beta 后缀后比较版本号
+        const cleanCurrentVersion = currentSymbolsVersion?.replace('-beta', '') || '';
+        const cleanServerVersion = serverSymbolsVersion?.replace('-beta', '') || '';
+        
+        console.log('当前符号版本:', currentSymbolsVersion, '服务器符号版本:', serverSymbolsVersion);
+        console.log('当前拼音版本:', currentPinyinVersion, '服务器拼音版本:', serverPinyinVersion);
+        
+        // 如果任一数据需要更新，则触发更新
+        if (cleanCurrentVersion !== cleanServerVersion || currentPinyinVersion !== serverPinyinVersion) {
+          console.log('发现新版本！');
+          onNewVersion?.(serverSymbolsVersion);
         } else {
+          console.log('已是最新版本');
           onNoUpdate?.();
         }
-      },
-      fail: (err) => {
-        console.error('检查更新失败:', err);
+      } else {
         onNoUpdate?.();
       }
+    }).catch(err => {
+      console.error('检查更新失败:', err);
+      onNoUpdate?.();
     });
   }
 };
