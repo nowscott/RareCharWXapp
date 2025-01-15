@@ -1,6 +1,5 @@
 const StorageManager = require('./storage.js');
 const UPDATE_INTERVAL = 60 * 60 * 1000; // 1小时更新间隔
-
 const UpdateManager = {
   formatTime(timestamp) {  // 格式化时间
     const date = new Date(timestamp);
@@ -16,7 +15,7 @@ const UpdateManager = {
   updateData(callbacks = {}, hasUpdate = false, dataUrl) {  // 更新数据
     const {onStart, onSuccess, onFail, onComplete} = callbacks;
     this.checkUpdate({
-      onNewVersion: async (serverVersion) => {
+      onNewVersion: async () => {
         onStart?.();
         StorageManager.clearCache();
         try {

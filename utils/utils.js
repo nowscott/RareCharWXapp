@@ -114,6 +114,17 @@ const SymbolUtils = {
     return this._unicodeMap;
   },
 
+  /**
+   * 检查分类是否匹配
+   * @private
+   */
+  _categoryMatches(categories, searchText, pinyinMap) {
+    if (!Array.isArray(categories)) return false;
+    return categories.some(category => 
+      this._textIncludes(category, searchText, pinyinMap)
+    );
+  },
+
   //搜索符号
   searchSymbols(symbols, searchText, currentCategory, pinyinMap) {
     // 确保输入参数都是有效的
@@ -121,6 +132,7 @@ const SymbolUtils = {
       console.warn('Invalid symbols array:', symbols);
       return [];
     }
+
     // 初始化或更新 Unicode 映射
     this._buildUnicodeMap(symbols);
     const normalizedSearch = searchText?.trim().toLowerCase() || '';
@@ -136,7 +148,6 @@ const SymbolUtils = {
     if (normalizedSearch) {
       // 检查是否为 unicode 搜索
       const isUnicodeSearch = this._isUnicodeSearch(normalizedSearch);
-      console.log('搜索模式:', isUnicodeSearch ? 'Unicode' : '普通搜索');
       if (isUnicodeSearch) {
         // Unicode 搜索使用映射直接查找
         const searchCode = normalizedSearch.slice(1).toLowerCase();
@@ -150,16 +161,12 @@ const SymbolUtils = {
         } else {
           result = [];
         }
-        console.log('Unicode 搜索结果:', {
-          searchCode,
-          matchedSymbol,
-          result
-        });
       } else {
         // 普通搜索逻辑
         result = result.filter(symbol => (
           this._textIncludes(symbol.symbol, normalizedSearch, pinyinMap) ||
-          this._textIncludes(symbol.name, normalizedSearch, pinyinMap)
+          this._textIncludes(symbol.name, normalizedSearch, pinyinMap) ||
+          this._categoryMatches(symbol.category, normalizedSearch, pinyinMap)  // 添加分类匹配
         ));
       }
 
@@ -216,6 +223,10 @@ const SymbolUtils = {
       score += 60;   // 完全匹配
     } else if (this._textIncludes(symbol.name, normalizedSearch, pinyinMap)) {
       score += 40;   // 部分匹配
+    }
+    // 分类匹配（最低优先级）
+    if (this._categoryMatches(symbol.category, normalizedSearch, pinyinMap)) {
+      score += 20;   // 分类匹配
     }
     return score;
   },
