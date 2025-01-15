@@ -68,26 +68,41 @@ Page({
 
   onSearch(e) {
     const searchText = e.detail.value;
-    const filtered = SymbolUtils.searchSymbols(
-      this.data.allSymbols,
-      searchText,
-      '全部'
-    );
-    const categoryUpdate = SymbolUtils.updateCategories(filtered, searchText);
+    
+    // 设置加载状态
     this.setData({
-      searchText,
-      currentCategory: '全部',
-      scrollTop: 0,
-      showSymbols: filtered,
-      ...categoryUpdate
+      isLoading: true,
+      showSymbols: []  // 清空当前显示的符号
     });
-    // 滚动到顶部
-    wx.createSelectorQuery()
-      .select('.category-scroll')
-      .node()
-      .exec((res) => {
-        res[0]?.node?.scrollTo({ left: 0 });
+
+    // 使用 nextTick 确保加载状态已更新
+    wx.nextTick(() => {
+      const filtered = SymbolUtils.searchSymbols(
+        this.data.allSymbols,
+        searchText,
+        '全部'
+      );
+      
+      const categoryUpdate = SymbolUtils.updateCategories(filtered, searchText);
+      
+      // 更新搜索结果和状态
+      this.setData({
+        searchText,
+        currentCategory: '全部',
+        scrollTop: 0,
+        showSymbols: filtered,
+        isLoading: false,
+        ...categoryUpdate
       });
+
+      // 滚动到顶部
+      wx.createSelectorQuery()
+        .select('.category-scroll')
+        .node()
+        .exec((res) => {
+          res[0]?.node?.scrollTo({ left: 0 });
+        });
+    });
   },
 
   // 切换分类

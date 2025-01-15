@@ -78,9 +78,7 @@ const SymbolUtils = {
     return score;
   },
 
-  /**
-   * 搜索符号（合并了原 searchSymbols 和 filterAndSortSymbols 的功能）
-   */
+  //搜索符号
   searchSymbols(symbols, searchText, currentCategory) {
     // 确保输入参数都是有效的
     if (!Array.isArray(symbols) || !symbols.length) {
@@ -89,6 +87,7 @@ const SymbolUtils = {
     }
     const normalizedSearch = searchText?.trim().toLowerCase() || '';
     let result = [...symbols];  // 创建一个新的数组副本
+
     // 先进行分类过滤
     if (currentCategory && currentCategory !== '全部') {
       result = result.filter(symbol => 
@@ -96,6 +95,7 @@ const SymbolUtils = {
         symbol.category.includes(currentCategory)
       );
     }
+
     // 如果有搜索文本，进行搜索过滤和排序
     if (normalizedSearch) {
       result = result.filter(symbol => {
@@ -116,16 +116,13 @@ const SymbolUtils = {
         if (aScore !== bScore) {
           return bScore - aScore;
         }
-        // 匹配度相同时，按 Unicode 码点排序，使用 NFC 格式
         return a.symbol.normalize('NFC').localeCompare(b.symbol.normalize('NFC'));
       });
     } else {
       // 无搜索文本时的排序逻辑
       if (currentCategory === '全部') {
-        // 全部分类下随机排序
         result = this.shuffle(result);
       } else {
-        // 其他分类下按 Unicode 码点值排序
         result.sort((a, b) => {
           const aCode = a.symbol.codePointAt(0);
           const bCode = b.symbol.codePointAt(0);
@@ -133,7 +130,13 @@ const SymbolUtils = {
         });
       }
     }
-    return result;
+
+    // 为每个结果添加唯一key和索引
+    return result.map((symbol, index) => ({
+      ...symbol,
+      _key: Math.random().toString(36).slice(2),
+      '--index': index
+    }));
   },
 
   /**

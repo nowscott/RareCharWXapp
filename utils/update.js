@@ -19,57 +19,58 @@ const UpdateManager = {
   // 更新数据
   updateData(callbacks = {}, hasUpdate = false, dataUrl) {
     const {onStart, onSuccess, onFail, onComplete} = callbacks;
-    const timestamp = wx.getStorageSync('symbols_timestamp');
-    if (!hasUpdate && !this.checkCanUpdate(timestamp)) {
-      const nextUpdate = this.getNextUpdateTime(timestamp);
-      if (hasUpdate === undefined) {
-        wx.showToast({
-          title: `${this.formatTime(nextUpdate)}后可更新`,
-          icon: 'none',
-          duration: 1000
-        });
-      }
-      return;
-    }
-    onStart?.();
-    StorageManager.clearCache();
-    wx.request({
-      url: dataUrl || getApp().globalData.dataUrl,
-      success: (res) => {
-        if (res.data && res.data.symbols) {
-          // 检查版本是否真的更新了（忽略 beta 后缀）
-          const currentVersion = StorageManager.getCurrentVersion();
-          const serverVersion = res.data.version;
-          const cleanCurrentVersion = currentVersion?.replace('-beta', '');
-          const cleanServerVersion = serverVersion?.replace('-beta', '');
-          const hasNewVersion = cleanCurrentVersion !== cleanServerVersion;
-          StorageManager.saveData(res.data);
-          onSuccess?.(res.data);
-          getApp().globalData.eventBus.emit('dataUpdated');
-          // 只在有新版本时显示更新提示
-          if (hasNewVersion) {
+    
+    // 先检查是否有新版本
+    this.checkUpdate({
+      onNewVersion: (serverVersion) => {
+        // 只有在有新版本时才执行更新
+        onStart?.();
+        StorageManager.clearCache();
+        
+        wx.request({
+          url: dataUrl || getApp().globalData.dataUrl,
+          success: (res) => {
+            if (res.data && res.data.symbols) {
+              StorageManager.saveData(res.data);
+              onSuccess?.(res.data);
+              getApp().globalData.eventBus.emit('dataUpdated');
+              
+              wx.showToast({
+                title: '数据已更新',
+                icon: 'success'
+              });
+            }
+          },
+          fail: (err) => {
+            console.error('更新数据失败:', err);
+            onFail?.(err);
             wx.showToast({
-              title: '数据已更新',
-              icon: 'success'
+              title: '更新失败',
+              icon: 'error'
             });
+          },
+          complete: () => {
+            onComplete?.();
           }
-        }
-      },
-      fail: (err) => {
-        console.error('更新数据失败:', err);
-        onFail?.(err);
-        wx.showToast({
-          title: '更新失败',
-          icon: 'error'
         });
       },
-      complete: () => {
+      // 如果没有新版本，直接完成
+      onNoUpdate: () => {
+        if (hasUpdate === undefined) {
+          const timestamp = wx.getStorageSync('symbols_timestamp');
+          const nextUpdate = this.getNextUpdateTime(timestamp);
+          wx.showToast({
+            title: `${this.formatTime(nextUpdate)}后可更新`,
+            icon: 'none',
+            duration: 1000
+          });
+        }
         onComplete?.();
       }
-    });
+    }, dataUrl);
   },
   // 检查更新
-  checkUpdate({ onNewVersion } = {}, dataUrl) {
+  checkUpdate({ onNewVersion, onNoUpdate } = {}, dataUrl) {
     console.log('正在检查数据更新...');
     wx.request({
       url: dataUrl || getApp().globalData.dataUrl,
@@ -86,11 +87,15 @@ const UpdateManager = {
             onNewVersion?.(serverVersion);
           } else {
             console.log('已是最新版本');
+            onNoUpdate?.();
           }
+        } else {
+          onNoUpdate?.();
         }
       },
       fail: (err) => {
         console.error('检查更新失败:', err);
+        onNoUpdate?.();
       }
     });
   }

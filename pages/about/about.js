@@ -13,8 +13,7 @@ Page({
       guide: {
         title: "说明",
         steps: [
-          "🔄 点击更新数据按钮可更新符号库（每小时一次）",
-          "🔍 在首页搜索框输入检索词（支持拼音检索）",
+          "🔍 在首页搜索框输入检索词，即可检索符号",
           "👆 点击下方列表中的符号按钮查看详情页",
           "📋 点击右上角复制按钮即可复制符号",
           "💡 遇到问题可以点击下方邮箱反馈"
@@ -103,33 +102,6 @@ Page({
     this.fetchStatsData();
   },
 
-  // 更新数据
-  updateData() {
-    const timestamp = wx.getStorageSync('symbols_timestamp');
-    if (!this.data.stats.hasUpdate && !UpdateManager.checkCanUpdate(timestamp)) {
-      const waitMinutes = Math.ceil((StorageManager.CACHE_TIME.CHECK_UPDATE - (Date.now() - timestamp)) / 60000);
-      wx.showToast({
-        title: `请等待 ${waitMinutes} 分钟后再更新`,
-        icon: 'none',
-        duration: 2000
-      });
-      return;
-    }
-
-    UpdateManager.updateData({
-      onStart: () => this.setData({ 'stats.isUpdating': true }),
-      onSuccess: (data) => {
-        this.fetchStatsData();
-        this.setData({
-          'stats.updateTime': UpdateManager.formatTime(Date.now()),
-          'stats.version': data.version || this.data.DEFAULT_VERSION,
-          'stats.hasUpdate': false
-        });
-      },
-      onComplete: () => this.setData({ 'stats.isUpdating': false })
-    }, this.data.stats.hasUpdate);
-  },
-
   async fetchStatsData() {
     try {
       const stats = await SymbolUtils.fetchStats();
@@ -178,17 +150,31 @@ Page({
   async checkUpdate() {
     UpdateManager.checkUpdate({
       onNewVersion: (newVersion) => {
-        this.setData({ 'stats.hasUpdate': true });
+        this.setData({ 
+          'stats.hasUpdate': true,
+          'stats.version': newVersion
+        });
         wx.showModal({
           title: '发现数据更新',
           content: `发现新的数据版本:(v${newVersion})，是否立即更新？`,
           success: (res) => {
             if (res.confirm) {
-              this.updateData();
+              UpdateManager.updateData({
+                onStart: () => this.setData({ 'stats.isUpdating': true }),
+                onSuccess: (data) => {
+                  this.fetchStatsData();
+                  this.setData({
+                    'stats.updateTime': UpdateManager.formatTime(Date.now()),
+                    'stats.version': data.version || this.data.DEFAULT_VERSION,
+                    'stats.hasUpdate': false
+                  });
+                },
+                onComplete: () => this.setData({ 'stats.isUpdating': false })
+              }, true);
             }
           }
         });
       }
-    }, getApp().globalData.dataUrl);
+    });
   },
 }); 

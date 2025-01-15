@@ -12,21 +12,15 @@
         <view class="update-info">
           <view class="update-details">
             <view class="version-line">
-              <text class="label">当前数据版本：</text>
+              <text class="label">数据版本：</text>
               <text class="value">v{{stats.version || '暂无版本信息'}}</text>
+              <text wx:if="{{stats.hasUpdate}}" class="update-badge">有新版本</text>
             </view>
             <view class="time-line">
-              <text class="label">数据更新时间：</text>
+              <text class="label">更新时间：</text>
               <text class="value">{{stats.updateTime || '暂无更新时间'}}</text>
             </view>
           </view>
-          <button 
-            class="update-btn {{stats.isUpdating ? 'updating' : ''}} {{stats.hasUpdate ? 'has-update' : ''}}" 
-            bindtap="updateData" 
-            disabled="{{stats.isUpdating}}"
-          >
-            {{stats.isUpdating ? '更新中' : '更新数据'}}
-          </button>
         </view>
       </view>
       <!-- 介绍 -->
