@@ -1,18 +1,12 @@
 const StorageManager = require('./storage.js');
-const UPDATE_INTERVAL = 60 * 60 * 1000; // 1小时更新间隔
+
 const UpdateManager = {
   formatTime(timestamp) {  // 格式化时间
     const date = new Date(timestamp);
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
   },
-  checkCanUpdate(lastUpdateTime) {  // 检查是否可以更新
-    const now = Date.now();
-    return !lastUpdateTime || (now - lastUpdateTime) >= UPDATE_INTERVAL;
-  },
-  getNextUpdateTime(lastUpdateTime) {  // 获取下次可更新时间
-    return new Date(lastUpdateTime + UPDATE_INTERVAL);
-  },
-  updateData(callbacks = {}, hasUpdate = false, dataUrl) {  // 更新数据
+
+  updateData(callbacks = {}, dataUrl) {  // 更新数据
     const {onStart, onSuccess, onFail, onComplete} = callbacks;
     this.checkUpdate({
       onNewVersion: async () => {
@@ -26,7 +20,6 @@ const UpdateManager = {
           if (!symbolsRes.data?.symbols || !pinyinRes.data?.pinyinMap) { // 检查数据有效性
             throw new Error('Invalid data format');
           }
-          // 保存数据
           StorageManager.saveData(symbolsRes.data, pinyinRes.data);
           onSuccess?.(symbolsRes.data);
           getApp().globalData.eventBus.emit('dataUpdated');
@@ -46,19 +39,11 @@ const UpdateManager = {
         }
       },
       onNoUpdate: () => {
-        if (hasUpdate === undefined) {
-          const timestamp = wx.getStorageSync('symbols_timestamp');
-          const nextUpdate = this.getNextUpdateTime(timestamp);
-          wx.showToast({
-            title: `${this.formatTime(nextUpdate)}后可更新`,
-            icon: 'none',
-            duration: 1000
-          });
-        }
         onComplete?.();
       }
     }, dataUrl);
   },
+
   _request(url) {  // 添加请求包装方法
     return new Promise((resolve, reject) => {
       wx.request({
@@ -68,6 +53,7 @@ const UpdateManager = {
       });
     });
   },
+
   checkUpdate({ onNewVersion, onNoUpdate } = {}, dataUrl) {  // 统一的检查更新方法
     console.log('正在检查数据更新...');    
     Promise.all([
