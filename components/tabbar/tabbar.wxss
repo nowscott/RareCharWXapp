@@ -3,7 +3,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 96rpx;
+  height: 84rpx;
   background: var(--color-bg-secondary);
   display: flex;
   padding-bottom: env(safe-area-inset-bottom);
@@ -13,13 +13,24 @@
 .tabbar-item {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4rpx;
 }
 
 .tabbar-icon {
-  width: 56rpx;
-  height: 56rpx;
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.tabbar-text {
+  font-size: 20rpx;
+  color: var(--color-text-tertiary);
+}
+
+.tabbar-item.active .tabbar-text {
+  color: #F3CA7E;
 }
 
 .tabbar-item.active {
