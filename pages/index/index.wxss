@@ -108,11 +108,12 @@
 }
 
 .symbols-list.scrolling {
-  pointer-events: none;  /* 滚动时禁止交互 */
+  pointer-events: none;
 }
 
 .symbol-item {
   background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
   border-radius: 32rpx;
   padding: 16rpx;
   display: flex;
