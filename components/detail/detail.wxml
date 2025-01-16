@@ -1,5 +1,5 @@
-<view class="symbol-detail {{show ? 'show' : ''}}" bindtap="onClose">
-  <view class="detail-card" catchtap="stopPropagation">
+<view class="symbol-detail {{show ? 'show' : ''}}" bind:tap="handleMaskTap" id="mask">
+  <view class="detail-card" catch:tap="stopPropagation">
     <view class="detail-content">
       <view class="detail-symbol">{{symbol.symbol}}</view>
       <image class="copy-icon" src="/images/detail/{{isCopying ? 'copy_active.svg' : 'copy.svg'}}" bindtap="onCopySymbol"></image>

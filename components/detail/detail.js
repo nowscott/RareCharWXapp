@@ -33,11 +33,19 @@ Component({
 
   methods: {
     stopPropagation() {
+      // 阻止事件冒泡
       return;
     },
 
-    onClose() {
-      this.triggerEvent('close');
+    handleMaskTap(e) {
+      // 检查点击是否在蒙层上
+      if (e.target.id === 'mask') {
+        this.setData({ show: false });
+        // 等待动画结束后再触发关闭事件
+        setTimeout(() => {
+          this.triggerEvent('close');
+        }, 300);
+      }
     },
 
     onCopySymbol() {

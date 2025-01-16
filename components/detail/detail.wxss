@@ -9,8 +9,8 @@
   align-items: center;
   justify-content: center;
   opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s;
+  pointer-events: none;
+  transition: opacity 0.3s ease-out;
   z-index: 999;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -18,7 +18,7 @@
 
 .symbol-detail.show {
   opacity: 1;
-  visibility: visible;
+  pointer-events: auto;
 }
 
 .detail-card {
@@ -28,8 +28,9 @@
   opacity: 0.95;
   border-radius: 48rpx;
   padding: 24rpx 40rpx;
-  transform: translateY(50rpx);
-  transition: all 0.3s;
+  transform: translateY(50rpx) scale(0.95);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   backdrop-filter: blur(8px);
@@ -39,7 +40,13 @@
 }
 
 .symbol-detail.show .detail-card {
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.symbol-detail:not(.show) .detail-card {
+  transform: translateY(20rpx) scale(0.95);
+  opacity: 0;
 }
 
 .detail-symbol {
