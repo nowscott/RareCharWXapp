@@ -50,6 +50,7 @@
                   wx:key="_key"
                   class="symbol-item {{currentCategory ? 'animate' : ''}}"
                   bindtap="showSymbolDetail" 
+                  bindlongpress="handleLongPress"
                   data-symbol="{{item}}">
               <text class="symbol">{{item.symbol}}</text>
               <text class="name">{{item.name}}</text>

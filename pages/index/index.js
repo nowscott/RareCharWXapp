@@ -204,5 +204,20 @@ Page({
       this.setData({ isScrolling: false });
     }, 150);
     this.setData({ scrollTimer: timer });
+  },
+
+  // 添加长按复制方法
+  handleLongPress(e) {
+    const symbol = e.currentTarget.dataset.symbol;
+    wx.setClipboardData({
+      data: symbol.symbol,
+      success: () => {
+        wx.showToast({
+          title: '已复制',
+          icon: 'success',
+          duration: 500
+        });
+      }
+    });
   }
 });
