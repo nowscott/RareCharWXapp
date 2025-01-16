@@ -26,7 +26,7 @@
   width: 80%;
   background: var(--color-bg-secondary);
   opacity: 0.95;
-  border-radius: 20rpx;
+  border-radius: 48rpx;
   padding: 24rpx 40rpx;
   transform: translateY(50rpx);
   transition: all 0.3s;
@@ -35,7 +35,8 @@
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2), 
+            8px 8px 24px -2px rgba(0, 0, 0, 0.1);
 }
 
 .symbol-detail.show .detail-card {
@@ -204,5 +205,7 @@
   .detail-card {
     background: rgba(42, 42, 42, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2),
+                8px 8px 16px -2px rgba(0, 0, 0, 0.15);
   }
 } 

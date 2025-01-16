@@ -113,7 +113,7 @@
 
 .symbol-item {
   background: var(--color-bg-secondary);
-  border-radius: 16rpx;
+  border-radius: 32rpx;
   padding: 16rpx;
   display: flex;
   flex-direction: column;
