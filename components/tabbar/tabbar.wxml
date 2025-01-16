@@ -1,0 +1,8 @@
+<view class="tabbar">
+  <view class="tabbar-item {{selected === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0" data-url="/pages/index/index">
+    <image class="tabbar-icon" src="/images/tabbar/{{selected === 0 ? 'query_active.png' : 'query.png'}}"></image>
+  </view>
+  <view class="tabbar-item {{selected === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1" data-url="/pages/about/about">
+    <image class="tabbar-icon" src="/images/tabbar/{{selected === 1 ? 'info_active.png' : 'info.png'}}"></image>
+  </view>
+</view> 

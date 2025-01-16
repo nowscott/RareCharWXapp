@@ -5,6 +5,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding-bottom: calc(96rpx + env(safe-area-inset-bottom));
 }
 
 .container {

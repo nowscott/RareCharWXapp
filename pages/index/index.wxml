@@ -81,4 +81,5 @@
       bindclose="hideSymbolDetail"
     />
   </view>
+  <tabbar selected="{{0}}" />
 </view>

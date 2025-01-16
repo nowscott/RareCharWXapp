@@ -12,20 +12,13 @@
     "navigationBarTextStyle": "black"
   },
   "tabBar": {
-    "color": "#999999",
-    "selectedColor": "#000000",
-    "backgroundColor": "@tabBarBg",
-    "borderStyle": "@tabBarBorderStyle",
+    "custom": true,
     "list": [
       {
-        "pagePath": "pages/index/index",
-        "iconPath": "images/tabbar/query.png",
-        "selectedIconPath": "images/tabbar/query_active.png"
+        "pagePath": "pages/index/index"
       },
       {
-        "pagePath": "pages/about/about",
-        "iconPath": "images/tabbar/info.png",
-        "selectedIconPath": "images/tabbar/info_active.png"
+        "pagePath": "pages/about/about"
       }
     ]
   },

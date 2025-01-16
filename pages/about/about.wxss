@@ -5,6 +5,7 @@
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  padding-bottom: calc(96rpx + env(safe-area-inset-bottom));
 }
 
 .custom-nav {

@@ -66,4 +66,5 @@
       <text class="footer-text icp">{{texts.footer.icp}}</text>
     </view>
   </view>
+  <tabbar selected="{{1}}" />
 </view>

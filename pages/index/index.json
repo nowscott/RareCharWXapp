@@ -1,6 +1,7 @@
 {
   "usingComponents": {
-    "symbol-detail": "/components/detail/detail"
+    "symbol-detail": "/components/detail/detail",
+    "tabbar": "/components/tabbar/tabbar"
   },
   "navigationBarTitleText": "复制符"
 }
