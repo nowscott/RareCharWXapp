@@ -27,7 +27,10 @@ Page({
     // 尝试加载缓存数据
     const initialData = SymbolUtils.handleInitialData(system);
     if (initialData) {
-      this.setData(SymbolUtils.processInitialData(initialData));
+      const processedData = SymbolUtils.processInitialData(initialData);
+      // 处理符号数据，添加索引
+      processedData.showSymbols = this.processSymbols(processedData.showSymbols);
+      this.setData(processedData);
     } else {
       this.fetchSymbolsData();
     }
@@ -69,44 +72,34 @@ Page({
   onSearch(e) {
     const searchText = e.detail.value;
     
-    // 设置加载状态
+    // 获取拼音映射数据
+    const pinyinData = wx.getStorageSync('pinyin_map');
+    
+    const filtered = SymbolUtils.searchSymbols(
+      this.data.allSymbols,
+      searchText,
+      '全部',
+      pinyinData?.pinyinMap
+    );
+    
+    const categoryUpdate = SymbolUtils.updateCategories(filtered, searchText);
+    
+    // 直接更新搜索结果和状态
     this.setData({
-      isLoading: true,
-      showSymbols: []  // 清空当前显示的符号
+      searchText,
+      currentCategory: '全部',
+      scrollTop: 0,
+      showSymbols: this.processSymbols(filtered),
+      ...categoryUpdate
     });
 
-    // 使用 nextTick 确保加载状态已更新
-    wx.nextTick(() => {
-      // 获取拼音映射数据
-      const pinyinData = wx.getStorageSync('pinyin_map');
-      
-      const filtered = SymbolUtils.searchSymbols(
-        this.data.allSymbols,
-        searchText,
-        '全部',
-        pinyinData?.pinyinMap  // 传入拼音映射数据
-      );
-      
-      const categoryUpdate = SymbolUtils.updateCategories(filtered, searchText);
-      
-      // 更新搜索结果和状态
-      this.setData({
-        searchText,
-        currentCategory: '全部',
-        scrollTop: 0,
-        showSymbols: filtered,
-        isLoading: false,
-        ...categoryUpdate
+    // 滚动到顶部
+    wx.createSelectorQuery()
+      .select('.category-scroll')
+      .node()
+      .exec((res) => {
+        res[0]?.node?.scrollTo({ left: 0 });
       });
-
-      // 滚动到顶部
-      wx.createSelectorQuery()
-        .select('.category-scroll')
-        .node()
-        .exec((res) => {
-          res[0]?.node?.scrollTo({ left: 0 });
-        });
-    });
   },
 
   // 切换分类
@@ -118,29 +111,23 @@ Page({
       this.data.searchText,
       this.data.currentCategory
     );
+    
     if (updateData) {
       // 获取拼音映射数据
       const pinyinData = wx.getStorageSync('pinyin_map');
       
-      // 立即更新分类和显示加载状态
+      // 使用原有的搜索逻辑
+      const filtered = SymbolUtils.searchSymbols(
+        this.data.allSymbols,
+        this.data.searchText,
+        category,
+        pinyinData?.pinyinMap
+      );
+        
       this.setData({
         currentCategory: updateData.currentCategory,
         scrollTop: 0,
-        isLoading: true
-      });
-      // 使用 nextTick 延迟更新符号列表
-      wx.nextTick(() => {
-        const filtered = SymbolUtils.searchSymbols(
-          this.data.allSymbols,
-          this.data.searchText,
-          category,
-          pinyinData?.pinyinMap  // 传入拼音映射数据
-        );
-        
-        this.setData({
-          showSymbols: filtered,
-          isLoading: false
-        });
+        showSymbols: this.processSymbols(filtered)  // 保持动画效果
       });
     }
   },
@@ -219,5 +206,14 @@ Page({
         });
       }
     });
+  },
+
+  // 在处理符号数据时添加索引
+  processSymbols(symbols) {
+    return symbols.map((symbol, index) => ({
+      ...symbol,
+      _key: symbol.symbol + index,  // 保持原有的 key
+      style: `--index: ${index}`    // 添加 index 样式变量
+    }));
   }
 });

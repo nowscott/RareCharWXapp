@@ -48,7 +48,7 @@
             <view class="symbol-item" 
                   wx:for="{{showSymbols}}" 
                   wx:key="_key"
-                  class="symbol-item {{currentCategory ? 'animate' : ''}}"
+                  style="{{item.style}}"
                   bindtap="showSymbolDetail" 
                   bindlongpress="handleLongPress"
                   data-symbol="{{item}}">
