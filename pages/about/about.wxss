@@ -1,11 +1,10 @@
 .page {
   background: var(--color-bg-primary);
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  padding-bottom: calc(96rpx + env(safe-area-inset-bottom));
 }
 
 .custom-nav {
@@ -13,9 +12,7 @@
   background: var(--color-bg-secondary);
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
-  z-index: 100;
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
 }
@@ -32,11 +29,18 @@
   font-family: wenkai, system-ui, sans-serif;
 }
 
-.container {
+
+.scroll-container {
   flex: 1;
+  overflow: auto;
   background: var(--color-bg-primary);
-  padding: 8rpx 24rpx;
+  padding: 0;
   box-sizing: border-box;
+  padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom));
+}
+
+.container {
+  padding: 0 24rpx;
 }
 
 /* 统计框样式 */
@@ -44,11 +48,12 @@
   margin-top: 16rpx;
   padding: 32rpx 16rpx;
   background: var(--color-bg-secondary);
-  border-radius: 16rpx;
+  border-radius: 32rpx;
   display: flex;
   justify-content: space-between;
   width: 100%;
   box-sizing: border-box;
+  box-shadow: var(--shadow-default);
 }
 
 .stats-item {
@@ -78,9 +83,9 @@
   width: 100%;
   background: var(--color-bg-secondary);
   padding: 16rpx 32rpx;
-  border-radius: 16rpx;
+  border-radius: 32rpx;
   box-sizing: border-box;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-default);
 }
 
 .section-title {
@@ -216,11 +221,4 @@
   padding: 4rpx 12rpx;
   border-radius: 20rpx;
   margin-left: 12rpx;
-}
-
-/* 删除更新按钮相关样式 */
-.update-btn,
-.update-btn:disabled,
-.update-btn.updating {
-  display: none;
 }

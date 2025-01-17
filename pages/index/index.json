@@ -3,5 +3,6 @@
     "symbol-detail": "/components/detail/detail",
     "tabbar": "/components/tabbar/tabbar"
   },
-  "navigationBarTitleText": "复制符"
+  "navigationBarTitleText": "复制符",
+  "disableScroll": true
 }

@@ -19,7 +19,11 @@ Page({
     titleSize: app.globalData.titleSize,
     isLoading: true,
     isScrolling: false,
-    scrollTimer: null
+    scrollTimer: null,
+    touchStartX: 0,
+    touchStartY: 0,
+    touchEndX: 0,
+    touchEndY: 0
   },
   
   onLoad() {
@@ -121,7 +125,6 @@ Page({
       this.data.searchText,
       this.data.currentCategory
     );
-    
     if (updateData) {
       // 立即更新分类和显示加载状态
       this.setData({
@@ -130,12 +133,10 @@ Page({
         isLoading: true,
         showSymbols: []  // 清空当前显示的符号
       });
-
       // 使用 nextTick 确保加载状态已更新
       wx.nextTick(() => {
         // 获取拼音映射数据
         const pinyinData = wx.getStorageSync('pinyin_map');
-        
         // 使用原有的搜索逻辑
         const filtered = SymbolUtils.searchSymbols(
           this.data.allSymbols,
@@ -143,7 +144,6 @@ Page({
           category,
           pinyinData?.pinyinMap
         );
-          
         this.setData({
           showSymbols: this.processSymbols(filtered),  // 保持动画效果
           isLoading: false
@@ -235,5 +235,43 @@ Page({
       _key: symbol.symbol + index,  // 保持原有的 key
       style: `--index: ${index}`    // 添加 index 样式变量
     }));
+  },
+
+  touchStart(e) {
+    this.setData({
+      touchStartX: e.touches[0].clientX,
+      touchStartY: e.touches[0].clientY
+    });
+  },
+
+  touchEnd(e) {
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const moveX = touchEndX - this.data.touchStartX;
+    const moveY = touchEndY - this.data.touchStartY;
+    // 如果垂直移动距离大于水平移动距离的一半，则认为是在上下滑动
+    if (Math.abs(moveY) > Math.abs(moveX) / 2) {
+      return;
+    }
+    // 判断是否为有效的滑动距离(大于80像素)
+    if (Math.abs(moveX) > 50) {
+      const currentIndex = this.data.showCategories.indexOf(this.data.currentCategory);
+      let targetIndex;
+      if (moveX > 0 && currentIndex > 0) {
+        // 向右滑动，切换到前一个分类
+        targetIndex = currentIndex - 1;
+      } else if (moveX < 0 && currentIndex < this.data.showCategories.length - 1) {
+        // 向左滑动，切换到后一个分类
+        targetIndex = currentIndex + 1;
+      }
+      if (targetIndex !== undefined) {
+        const category = this.data.showCategories[targetIndex];
+        this.switchCategory({
+          currentTarget: {
+            dataset: { category }
+          }
+        });
+      }
+    }
   }
 });

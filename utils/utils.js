@@ -61,8 +61,8 @@ const SymbolUtils = {
    * @private
    */
   _isUnicodeSearch(searchText) {
-    // 支持 u4e00 或 u20000 格式
-    return /^[uU][0-9a-fA-F]{4,5}$/.test(searchText);
+    // 支持 u4e00 或 u20000 格式，以及 u4e00-4e10 区间格式
+    return /^[uU][0-9a-fA-F]{4,5}(?:-[0-9a-fA-F]{4,5})?$/.test(searchText);
   },
 
   /**
@@ -71,11 +71,17 @@ const SymbolUtils = {
    */
   _matchUnicode(symbol, searchText) {
     if (!symbol || !searchText) return false;
-    // 获取符号的 unicode 编码（支持4位和5位）
+    // 获取符号的 unicode 编码
     const code = symbol.codePointAt(0).toString(16).toLowerCase();
-    // 去掉 'u' 前缀并转换为小写
-    const searchCode = searchText.slice(1).toLowerCase();
-    return code === searchCode;
+    // 检查是否是区间搜索
+    if (searchText.includes('-')) {
+      const [start, end] = searchText.slice(1).toLowerCase().split('-');
+      return code >= start && code <= end;
+    } else {
+      // 单个 unicode 搜索
+      const searchCode = searchText.slice(1).toLowerCase();
+      return code === searchCode;
+    }
   },
 
   /**
@@ -109,7 +115,17 @@ const SymbolUtils = {
     this._unicodeMap = new Map();
     symbols.forEach(symbol => {
       const code = symbol.symbol.codePointAt(0).toString(16).padStart(4, '0').toLowerCase();
-      this._unicodeMap.set(code, symbol);
+      // 如果该 Unicode 已存在，则转换为数组存储
+      if (this._unicodeMap.has(code)) {
+        const existing = this._unicodeMap.get(code);
+        if (Array.isArray(existing)) {
+          existing.push(symbol);
+        } else {
+          this._unicodeMap.set(code, [existing, symbol]);
+        }
+      } else {
+        this._unicodeMap.set(code, symbol);
+      }
     });
     return this._unicodeMap;
   },
@@ -149,17 +165,36 @@ const SymbolUtils = {
       // 检查是否为 unicode 搜索
       const isUnicodeSearch = this._isUnicodeSearch(normalizedSearch);
       if (isUnicodeSearch) {
-        // Unicode 搜索使用映射直接查找
-        const searchCode = normalizedSearch.slice(1).toLowerCase();
-        const matchedSymbol = this._unicodeMap.get(searchCode);
-        // 如果找到匹配的符号，还需要检查分类
-        if (matchedSymbol && currentCategory === '全部') {
-          result = [matchedSymbol];
-        } else if (matchedSymbol && 
-                  matchedSymbol.category.includes(currentCategory)) {
-          result = [matchedSymbol];
+        // 检查是否是区间搜索
+        if (normalizedSearch.includes('-')) {
+          const [start, end] = normalizedSearch.slice(1).toLowerCase().split('-');
+          // 获取区间内的所有符号
+          result = result.filter(symbol => {
+            const code = symbol.symbol.codePointAt(0).toString(16).toLowerCase();
+            // 补齐4位以确保正确比较
+            const paddedCode = code.padStart(4, '0');
+            const paddedStart = start.padStart(4, '0');
+            const paddedEnd = end.padStart(4, '0');
+            // 转换为数字进行比较
+            const codeNum = parseInt(paddedCode, 16);
+            const startNum = parseInt(paddedStart, 16);
+            const endNum = parseInt(paddedEnd, 16);
+            return codeNum >= startNum && codeNum <= endNum;
+          });
         } else {
-          result = [];
+          // 单个 unicode 搜索
+          const searchCode = normalizedSearch.slice(1).toLowerCase();
+          const matchedSymbol = this._unicodeMap.get(searchCode);
+          if (matchedSymbol) {
+            // 处理可能的数组情况
+            const symbols = Array.isArray(matchedSymbol) ? matchedSymbol : [matchedSymbol];
+            // 根据当前分类过滤
+            result = symbols.filter(symbol => 
+              currentCategory === '全部' || symbol.category.includes(currentCategory)
+            );
+          } else {
+            result = [];
+          }
         }
       } else {
         // 普通搜索逻辑

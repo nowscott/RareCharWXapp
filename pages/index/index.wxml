@@ -23,12 +23,14 @@
       enhanced="{{true}}"
       show-scrollbar="{{false}}"
       scroll-with-animation
+      scroll-into-view="category-{{currentCategory}}"
     >
       <view class="category-list">
         <view class="category-item {{currentCategory === item ? 'active' : ''}}" 
               wx:for="{{showCategories}}"
               wx:key="*this"
               bindtap="switchCategory"
+              id="category-{{item}}"
               data-category="{{item}}">
           {{item}}
         </view>
@@ -41,6 +43,8 @@
       scroll-y 
       scroll-top="{{scrollTop}}"
       scroll-anchoring
+      bindtouchstart="touchStart"
+      bindtouchend="touchEnd"
     >
       <view class="symbols-list {{isScrolling ? 'scrolling' : ''}}">
         <block wx:if="{{!isLoading}}">

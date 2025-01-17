@@ -1,16 +1,6 @@
 /**app.wxss**/
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-} 
-
-button:not([size=mini]) {
-  width: 100rpx;
+page{
+  --tabbar-height: 92rpx;
 }
 
 /* 亮色主题 */

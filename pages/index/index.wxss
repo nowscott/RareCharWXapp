@@ -5,7 +5,28 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding-bottom: calc(96rpx + env(safe-area-inset-bottom));
+}
+
+.custom-nav {
+  width: 100%;
+  background: var(--color-bg-secondary);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  left: 0;
+}
+
+.nav-title {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  margin-left: 24rpx;
+  margin-bottom: 8rpx;
+  height: 100%;
+  font-family: wenkai, system-ui, sans-serif;
 }
 
 .container {
@@ -93,6 +114,7 @@
   margin-bottom: 16rpx;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom));
 }
 
 .symbols-list {
@@ -265,28 +287,6 @@
 .copy-with-desc-btn {
   background: #f6f6f6;
   color: #333;
-}
-
-.custom-nav {
-  width: 100%;
-  background: var(--color-bg-secondary);
-  display: flex;
-  flex-direction: column;
-  position: sticky;
-  top: 0;
-  left: 0;
-}
-
-.nav-title {
-  font-weight: 500;
-  color: var(--color-text-primary);
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  margin-left: 24rpx;
-  margin-bottom: 8rpx;
-  height: 100%;
-  font-family: wenkai, system-ui, sans-serif;
 }
 
 .search-container {
