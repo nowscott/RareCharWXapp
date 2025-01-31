@@ -1,5 +1,7 @@
 # 复制符 - 特殊符号检索小程序
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
 ## 项目简介
 复制符是一款便捷的微信小程序，专为快速查找和复制特殊符号而设计。它汇集了多种类型的特殊符号，提供强大的检索功能，支持持续更新，以满足用户多样化的符号使用需求。
 
